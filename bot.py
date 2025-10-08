@@ -267,6 +267,9 @@ if use_rag:
             # Check if PDF with same name already exists in this chat
             existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
             
+            # Debug: Show current chat ID
+            st.caption(f"Debug: Current chat ID = {S.cid}")
+            
             if existing_pdfs:
                 # PDF already exists, clean up old vectors and update
                 old_pdf_id = existing_pdfs[0]["id"]
