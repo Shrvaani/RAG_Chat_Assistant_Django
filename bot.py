@@ -260,39 +260,40 @@ st.markdown("<p class='desc'>Freely available models on Hugging Face Inference A
 # ===========================================
 # PDF UPLOAD
 # ===========================================
-files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True)
-if files and S.cid:
-    for f in files:
-        # Check if PDF with same name already exists in this chat
-        existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
-        
-        if existing_pdfs:
-            # PDF already exists, clean up old vectors and update
-            old_pdf_id = existing_pdfs[0]["id"]
-            cleanup_old_pdf_vectors(old_pdf_id)
-            pid = old_pdf_id
-            st.info(f"🔄 Updating existing PDF: {f.name}")
-        else:
-            # New PDF, insert record
-            rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
-            pid = rec.data[0]["id"]
-            st.info(f"📄 New PDF: {f.name}")
-        
-        with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(f.read()); path = tmp.name
-        loader = PyMuPDFLoader(path)
-        pages = loader.load() or PyPDFLoader(path).load()
-        splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=400)
-        chunks = splitter.split_documents(pages)
-        texts = [c.page_content for c in chunks]
-        vecs = embed_texts(texts)
-        upserts = [(f"{pid}_{i}", v, {"pdf_id": pid, "chunk_id": i, "page": c.metadata.get("page"), "text": t})
-                   for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
-        index.upsert(vectors=upserts)
-        os.unlink(path)  # Clean up temp file
-    st.success("✅ PDF(s) uploaded and embedded.")
-elif files and not S.cid:
-    st.warning("⚠️ Create a chat before uploading PDFs.")
+if use_rag:
+    files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True)
+    if files and S.cid:
+        for f in files:
+            # Check if PDF with same name already exists in this chat
+            existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
+            
+            if existing_pdfs:
+                # PDF already exists, clean up old vectors and update
+                old_pdf_id = existing_pdfs[0]["id"]
+                cleanup_old_pdf_vectors(old_pdf_id)
+                pid = old_pdf_id
+                st.info(f"🔄 Updating existing PDF: {f.name}")
+            else:
+                # New PDF, insert record
+                rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
+                pid = rec.data[0]["id"]
+                st.info(f"📄 New PDF: {f.name}")
+            
+            with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                tmp.write(f.read()); path = tmp.name
+            loader = PyMuPDFLoader(path)
+            pages = loader.load() or PyPDFLoader(path).load()
+            splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=400)
+            chunks = splitter.split_documents(pages)
+            texts = [c.page_content for c in chunks]
+            vecs = embed_texts(texts)
+            upserts = [(f"{pid}_{i}", v, {"pdf_id": pid, "chunk_id": i, "page": c.metadata.get("page"), "text": t})
+                       for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
+            index.upsert(vectors=upserts)
+            os.unlink(path)  # Clean up temp file
+        st.success("✅ PDF(s) uploaded and embedded.")
+    elif files and not S.cid:
+        st.warning("⚠️ Create a chat before uploading PDFs.")
 
 # ===========================================
 # CHAT DISPLAY
