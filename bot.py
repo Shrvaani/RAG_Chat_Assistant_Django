@@ -41,24 +41,119 @@ if PINECONE_INDEX not in pc.list_indexes().names():
 index = pc.Index(PINECONE_INDEX)
 
 # ===========================================
-# STYLE
+# STYLE - Dark & Light Theme Support
 # ===========================================
 st.markdown("""
 <style>
-:root{--grad:linear-gradient(90deg,#8b5cf6,#6366f1);--radius:10px;}
-section[data-testid="stSidebar"]{background:#f5f3ff!important;border-right:1px solid #e9d5ff;}
-section[data-testid="stSidebar"] h2,h3{color:#4f46e5;font-weight:700;}
-.stButton>button{background:var(--grad)!important;color:white!important;border:none!important;
-border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;transition:0.2s;}
-.stButton>button:hover{filter:brightness(1.1);}
-.stFileUploader>section{border:2px dashed #c7d2fe!important;border-radius:var(--radius)!important;}
-h1{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-font-weight:800;text-align:center;margin-top:-0.5rem;margin-bottom:0.3rem;}
-p.desc{text-align:center;color:#6b7280;margin-top:-10px;}
+:root{
+    --grad:linear-gradient(90deg,#8b5cf6,#6366f1);
+    --radius:10px;
+}
+
+/* Light theme variables */
+.stApp {
+    --sidebar-bg: #f5f3ff;
+    --sidebar-border: #e9d5ff;
+    --sidebar-text: #4f46e5;
+    --chat-user-bg: #eef2ff;
+    --chat-assistant-bg: #f3f4f6;
+    --desc-text: #6b7280;
+    --upload-border: #c7d2fe;
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+    --sidebar-bg: #1e1b4b;
+    --sidebar-border: #3730a3;
+    --sidebar-text: #a5b4fc;
+    --chat-user-bg: #312e81;
+    --chat-assistant-bg: #1e293b;
+    --desc-text: #9ca3af;
+    --upload-border: #4338ca;
+}
+
+/* Sidebar styling */
+section[data-testid="stSidebar"]{
+    background: var(--sidebar-bg) !important;
+    border-right: 1px solid var(--sidebar-border) !important;
+}
+section[data-testid="stSidebar"] h2,h3{
+    color: var(--sidebar-text) !important;
+    font-weight: 700;
+}
+
+/* Button styling */
+.stButton>button{
+    background: var(--grad) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.stButton>button:hover{
+    filter: brightness(1.1);
+}
+
+/* File uploader */
+.stFileUploader>section{
+    border: 2px dashed var(--upload-border) !important;
+    border-radius: var(--radius) !important;
+}
+
+/* Title styling */
+h1{
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    text-align: center;
+    margin-top: -0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Description text */
+p.desc{
+    text-align: center;
+    color: var(--desc-text);
+    margin-top: -10px;
+}
+
+/* Chat message styling */
 .stChatMessage[data-testid="assistant-message"] .stMarkdown{
-background:#f3f4f6;border-left:4px solid #6366f1;border-radius:var(--radius);padding:0.7rem;}
+    background: var(--chat-assistant-bg);
+    border-left: 4px solid #6366f1;
+    border-radius: var(--radius);
+    padding: 0.7rem;
+}
+
 .stChatMessage[data-testid="user-message"] .stMarkdown{
-background:#eef2ff;border-right:4px solid #a855f7;border-radius:var(--radius);padding:0.7rem;}
+    background: var(--chat-user-bg);
+    border-right: 4px solid #a855f7;
+    border-radius: var(--radius);
+    padding: 0.7rem;
+}
+
+/* Dark theme specific adjustments */
+[data-theme="dark"] .stChatMessage[data-testid="assistant-message"] .stMarkdown{
+    border-left-color: #818cf8;
+}
+
+[data-theme="dark"] .stChatMessage[data-testid="user-message"] .stMarkdown{
+    border-right-color: #c084fc;
+}
+
+/* Ensure proper contrast in dark mode */
+[data-theme="dark"] .stMarkdown h1,
+[data-theme="dark"] .stMarkdown h2,
+[data-theme="dark"] .stMarkdown h3 {
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .stMarkdown p {
+    color: #e2e8f0;
+}
 </style>
 """, unsafe_allow_html=True)
 
