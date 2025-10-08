@@ -85,7 +85,10 @@ def retrieve(q: str, chat_id: str, top_k=10, thr=0.01):
     pdf_ids = [pdf["id"] for pdf in pdfs_in_chat]
     
     if not pdf_ids:
+        print(f"Debug: No PDFs found for chat_id {chat_id}")
         return [], []  # No PDFs in this chat
+    
+    print(f"Debug: Searching in {len(pdf_ids)} PDFs for chat {chat_id}")
     
     # Query only vectors from PDFs in this chat
     res = index.query(
@@ -94,6 +97,11 @@ def retrieve(q: str, chat_id: str, top_k=10, thr=0.01):
         include_metadata=True,
         filter={"pdf_id": {"$in": pdf_ids}}  # Only search within this chat's PDFs
     )
+    
+    print(f"Debug: Found {len(res['matches'])} matches, threshold={thr}")
+    if res["matches"]:
+        print(f"Debug: Best match score: {res['matches'][0]['score']}")
+    
     hits = [m for m in res["matches"] if m["score"] >= thr] or res["matches"][:3]
     ctx, src = [], []
     for i, m in enumerate(hits):
@@ -326,7 +334,16 @@ if S.cid:
         insert_msg(S.cid, "user", q, [])
         S.msgs.append({"role": "user", "content": q})
         with st.chat_message("user"): st.markdown(q)
-        ctx, src = retrieve(q, S.cid) if use_rag else ([], [])
+        ctx, src = retrieve(q, S.cid, top_k=10, thr=0.001) if use_rag else ([], [])
+        
+        # Debug: Show what context was found
+        if use_rag:
+            st.caption(f"Debug: Found {len(ctx)} context chunks")
+            if ctx:
+                st.caption(f"First chunk: {ctx[0][:100]}...")
+            else:
+                st.caption("Debug: No context chunks found - check if PDF is uploaded and RAG is enabled")
+        
         prompt = build_prompt(ctx, q, use_rag)
         ans = ""
         with st.chat_message("assistant"):
