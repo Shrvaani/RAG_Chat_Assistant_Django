@@ -1,5 +1,5 @@
 # bot.py — Chat + Document Q&A (RAG + Reliable Delete + Confirmed Clear-All + No Auto Chat)
-import os, json, time
+import os, json, time, hashlib
 from tempfile import NamedTemporaryFile
 from typing import List
 import numpy as np
@@ -65,6 +65,12 @@ background:#eef2ff;border-right:4px solid #a855f7;border-radius:var(--radius);pa
 # ===========================================
 # HELPERS
 # ===========================================
+def get_user_id():
+    """Generate a unique user ID based on session info"""
+    # Create a unique identifier for this user session
+    session_info = f"{st.session_state.get('_streamlit_session_id', 'default')}_{time.time()}"
+    return hashlib.md5(session_info.encode()).hexdigest()[:16]
+
 def embed_texts(txts: List[str]) -> List[List[float]]:
     arr = emb_client.feature_extraction(txts)
     if isinstance(arr, list) and isinstance(arr[0], list):
@@ -95,6 +101,14 @@ def supabase_chats(uid): return supabase.table("chats").select("*").eq("user_id"
 def supabase_msgs(cid): return supabase.table("messages").select("*").eq("chat_id", cid).order("created_at").execute().data
 def insert_chat(uid,title): return supabase.table("chats").insert({"user_id":uid,"title":title}).execute().data[0]["id"]
 def insert_msg(cid,role,txt,src): supabase.table("messages").insert({"chat_id":cid,"role":role,"content":txt,"sources":json.dumps(src)}).execute()
+
+def cleanup_old_pdf_vectors(pdf_id):
+    """Remove old vectors for a PDF when re-uploading"""
+    try:
+        # Delete vectors that start with this pdf_id
+        index.delete(filter={"pdf_id": pdf_id})
+    except Exception as e:
+        print(f"Warning: Could not cleanup old vectors: {e}")
 
 # ===========================================
 # RELIABLE DELETE HELPERS
@@ -139,7 +153,10 @@ def cascade_clear_all():
 # STATE
 # ===========================================
 S = st.session_state
-if "uid" not in S: S.uid = "anon"
+if "uid" not in S: 
+    S.uid = get_user_id()
+    # Store the user ID for this session
+    st.session_state.user_id = S.uid
 if "cid" not in S or not S.cid:
     chats = supabase_chats(S.uid)
     S.cid = chats[0]["id"] if chats else None
@@ -154,6 +171,7 @@ if "confirm_clear" not in S: S.confirm_clear = False
 # ===========================================
 with st.sidebar:
     st.header("Sessions")
+    st.caption(f"User: {S.uid[:8]}...")  # Show first 8 chars of user ID
     level = st.selectbox("Reasoning Level", ["Low","Medium","High"], index=1)
     use_rag = st.toggle("Use RAG (ground answers in PDFs when available)", value=True)
 
@@ -232,8 +250,21 @@ st.markdown("<p class='desc'>Freely available models on Hugging Face Inference A
 files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True)
 if files and S.cid:
     for f in files:
-        rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
-        pid = rec.data[0]["id"]
+        # Check if PDF with same name already exists in this chat
+        existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
+        
+        if existing_pdfs:
+            # PDF already exists, clean up old vectors and update
+            old_pdf_id = existing_pdfs[0]["id"]
+            cleanup_old_pdf_vectors(old_pdf_id)
+            pid = old_pdf_id
+            st.info(f"🔄 Updating existing PDF: {f.name}")
+        else:
+            # New PDF, insert record
+            rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
+            pid = rec.data[0]["id"]
+            st.info(f"📄 New PDF: {f.name}")
+        
         with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(f.read()); path = tmp.name
         loader = PyMuPDFLoader(path)
@@ -245,6 +276,7 @@ if files and S.cid:
         upserts = [(f"{pid}_{i}", v, {"pdf_id": pid, "chunk_id": i, "page": c.metadata.get("page"), "text": t})
                    for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
         index.upsert(vectors=upserts)
+        os.unlink(path)  # Clean up temp file
     st.success("✅ PDF(s) uploaded and embedded.")
 elif files and not S.cid:
     st.warning("⚠️ Create a chat before uploading PDFs.")
