@@ -45,20 +45,20 @@ index = pc.Index(PINECONE_INDEX)
 # ===========================================
 st.markdown("""
 <style>
-:root{--grad:linear-gradient(90deg,#8b5cf6,#6366f1);--radius:10px;}
-section[data-testid="stSidebar"]{background:#f5f3ff!important;border-right:1px solid #e9d5ff;}
-section[data-testid="stSidebar"] h2,h3{color:#4f46e5;font-weight:700;}
+:root{--grad:linear-gradient(90deg,#1e3a8a,#1e40af);--radius:10px;}
+section[data-testid="stSidebar"]{background:#f0f4ff!important;border-right:1px solid #3b82f6;}
+section[data-testid="stSidebar"] h2,h3{color:#1e3a8a;font-weight:700;}
 .stButton>button{background:var(--grad)!important;color:white!important;border:none!important;
 border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;transition:0.2s;}
 .stButton>button:hover{filter:brightness(1.1);}
-.stFileUploader>section{border:2px dashed #c7d2fe!important;border-radius:var(--radius)!important;}
+.stFileUploader>section{border:2px dashed #3b82f6!important;border-radius:var(--radius)!important;}
 h1{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
 font-weight:800;text-align:center;margin-top:-0.5rem;margin-bottom:0.3rem;}
 p.desc{text-align:center;color:#6b7280;margin-top:-10px;}
 .stChatMessage[data-testid="assistant-message"] .stMarkdown{
-background:#f3f4f6;border-left:4px solid #6366f1;border-radius:var(--radius);padding:0.7rem;}
+background:#f3f4f6;border-left:4px solid #1e3a8a;border-radius:var(--radius);padding:0.7rem;}
 .stChatMessage[data-testid="user-message"] .stMarkdown{
-background:#eef2ff;border-right:4px solid #a855f7;border-radius:var(--radius);padding:0.7rem;}
+background:#f0f4ff;border-right:4px solid #1e40af;border-radius:var(--radius);padding:0.7rem;}
 </style>
 """, unsafe_allow_html=True)
 
