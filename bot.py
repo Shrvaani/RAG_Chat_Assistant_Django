@@ -178,6 +178,14 @@ if "msgs" not in S:
 if "rename_id" not in S: S.rename_id = None
 if "rename_value" not in S: S.rename_value = ""
 if "confirm_clear" not in S: S.confirm_clear = False
+if "current_chat_id" not in S: S.current_chat_id = None
+
+# Clear file uploader when switching chats
+if S.current_chat_id != S.cid:
+    S.current_chat_id = S.cid
+    # Clear any uploaded files when switching chats
+    if "uploaded_files" in st.session_state:
+        del st.session_state.uploaded_files
 
 # ===========================================
 # SIDEBAR
@@ -261,14 +269,11 @@ st.markdown("<p class='desc'>Freely available models on Hugging Face Inference A
 # PDF UPLOAD
 # ===========================================
 if use_rag:
-    files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True)
+    files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True, key=f"uploader_{S.cid}")
     if files and S.cid:
         for f in files:
             # Check if PDF with same name already exists in this chat
             existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
-            
-            # Debug: Show current chat ID
-            st.caption(f"Debug: Current chat ID = {S.cid}")
             
             if existing_pdfs:
                 # PDF already exists, clean up old vectors and update
