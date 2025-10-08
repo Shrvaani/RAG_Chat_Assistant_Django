@@ -223,7 +223,7 @@ with st.sidebar:
 # ===========================================
 # HEADER
 # ===========================================
-st.markdown("<h1>Chat + Document Q&A (RAG)</h1>", unsafe_allow_html=True)
+st.markdown("<h1>RAG Chat Assistant</h1>", unsafe_allow_html=True)
 st.markdown("<p class='desc'>Freely available models on Hugging Face Inference API • Upload PDFs for grounded answers with citations.</p>", unsafe_allow_html=True)
 
 # ===========================================
