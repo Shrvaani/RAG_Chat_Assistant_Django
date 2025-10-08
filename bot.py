@@ -261,7 +261,7 @@ st.markdown("<p class='desc'>Freely available models on Hugging Face Inference A
 # PDF UPLOAD
 # ===========================================
 if use_rag:
-    files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True)
+    files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True, key=f"uploader_{S.cid}")
     if files and S.cid:
         for f in files:
             # Check if PDF with same name already exists in THIS SPECIFIC CHAT only
@@ -294,6 +294,21 @@ if use_rag:
         st.success("✅ PDF(s) uploaded and embedded.")
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
+    
+    # Display PDFs uploaded to this chat
+    if S.cid:
+        current_chat_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).execute().data
+        if current_chat_pdfs:
+            st.subheader("📄 PDFs in this chat:")
+            for pdf in current_chat_pdfs:
+                col1, col2 = st.columns([0.9, 0.1])
+                with col1:
+                    st.markdown(f"📄 {pdf['filename']}")
+                with col2:
+                    if st.button("🗑", key=f"del_pdf_{pdf['id']}", help="Delete PDF"):
+                        cleanup_old_pdf_vectors(pdf['id'])
+                        supabase.table("pdfs").delete().eq("id", pdf['id']).execute()
+                        st.rerun()
 
 # ===========================================
 # CHAT DISPLAY
