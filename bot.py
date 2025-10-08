@@ -299,7 +299,7 @@ if use_rag:
     if S.cid:
         current_chat_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).execute().data
         if current_chat_pdfs:
-            st.subheader("📄 PDFs in this chat:")
+            st.caption("PDFs in this chat:")
             for pdf in current_chat_pdfs:
                 col1, col2 = st.columns([0.9, 0.1])
                 with col1:
