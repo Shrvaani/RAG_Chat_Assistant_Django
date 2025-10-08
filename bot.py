@@ -267,23 +267,17 @@ if use_rag:
             # Check if PDF with same name already exists in THIS SPECIFIC CHAT only
             existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
             
-            # Debug: Show what we found
-            all_pdfs_in_chat = supabase.table("pdfs").select("*").eq("chat_id", S.cid).execute().data
-            st.caption(f"Debug: Chat {S.cid} has {len(all_pdfs_in_chat)} total PDFs")
-            if all_pdfs_in_chat:
-                st.caption(f"Debug: PDFs in this chat: {[pdf['filename'] for pdf in all_pdfs_in_chat]}")
-            
             if existing_pdfs:
                 # PDF already exists in this chat, clean up old vectors and update
                 old_pdf_id = existing_pdfs[0]["id"]
                 cleanup_old_pdf_vectors(old_pdf_id)
                 pid = old_pdf_id
-                st.info(f"🔄 Updating existing PDF in this chat: {f.name}")
+                st.success(f"🔄 Updated PDF: {f.name}")
             else:
                 # New PDF for this chat, insert record
                 rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
                 pid = rec.data[0]["id"]
-                st.info(f"📄 New PDF uploaded to this chat: {f.name}")
+                st.success(f"📄 New PDF: {f.name}")
             
             with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 tmp.write(f.read()); path = tmp.name
