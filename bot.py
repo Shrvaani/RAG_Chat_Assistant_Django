@@ -78,9 +78,22 @@ def embed_texts(txts: List[str]) -> List[List[float]]:
     arr = np.array(arr, dtype=float)
     return [row.tolist() for row in arr.reshape(len(txts), -1)]
 
-def retrieve(q: str, top_k=10, thr=0.01):
+def retrieve(q: str, chat_id: str, top_k=10, thr=0.01):
     qv = embed_texts([q])[0]
-    res = index.query(vector=qv, top_k=top_k, include_metadata=True)
+    # Get PDF IDs for this specific chat
+    pdfs_in_chat = supabase.table("pdfs").select("id").eq("chat_id", chat_id).execute().data
+    pdf_ids = [pdf["id"] for pdf in pdfs_in_chat]
+    
+    if not pdf_ids:
+        return [], []  # No PDFs in this chat
+    
+    # Query only vectors from PDFs in this chat
+    res = index.query(
+        vector=qv, 
+        top_k=top_k, 
+        include_metadata=True,
+        filter={"pdf_id": {"$in": pdf_ids}}  # Only search within this chat's PDFs
+    )
     hits = [m for m in res["matches"] if m["score"] >= thr] or res["matches"][:3]
     ctx, src = [], []
     for i, m in enumerate(hits):
@@ -304,7 +317,7 @@ if S.cid:
         insert_msg(S.cid, "user", q, [])
         S.msgs.append({"role": "user", "content": q})
         with st.chat_message("user"): st.markdown(q)
-        ctx, src = retrieve(q) if use_rag else ([], [])
+        ctx, src = retrieve(q, S.cid) if use_rag else ([], [])
         prompt = build_prompt(ctx, q, use_rag)
         ans = ""
         with st.chat_message("assistant"):
