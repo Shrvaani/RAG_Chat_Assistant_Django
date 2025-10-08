@@ -63,13 +63,13 @@ st.markdown("""
 
 /* Dark theme variables */
 [data-theme="dark"] {
-    --sidebar-bg: #1e1b4b;
-    --sidebar-border: #3730a3;
-    --sidebar-text: #a5b4fc;
-    --chat-user-bg: #312e81;
-    --chat-assistant-bg: #1e293b;
-    --desc-text: #9ca3af;
-    --upload-border: #4338ca;
+    --sidebar-bg: #0f0f23;
+    --sidebar-border: #2d1b69;
+    --sidebar-text: #e0e7ff;
+    --chat-user-bg: #1e1b4b;
+    --chat-assistant-bg: #111827;
+    --desc-text: #d1d5db;
+    --upload-border: #6366f1;
 }
 
 /* Sidebar styling */
@@ -142,6 +142,33 @@ p.desc{
 
 [data-theme="dark"] .stChatMessage[data-testid="user-message"] .stMarkdown{
     border-right-color: #c084fc;
+}
+
+/* Dark theme sidebar improvements */
+[data-theme="dark"] section[data-testid="stSidebar"] {
+    background: #0f0f23 !important;
+    border-right: 1px solid #2d1b69 !important;
+}
+
+[data-theme="dark"] section[data-testid="stSidebar"] h2,
+[data-theme="dark"] section[data-testid="stSidebar"] h3 {
+    color: #e0e7ff !important;
+    font-weight: 700;
+}
+
+[data-theme="dark"] section[data-testid="stSidebar"] .stSelectbox label,
+[data-theme="dark"] section[data-testid="stSidebar"] .stToggle label,
+[data-theme="dark"] section[data-testid="stSidebar"] .stCaption {
+    color: #d1d5db !important;
+}
+
+[data-theme="dark"] section[data-testid="stSidebar"] .stSelectbox > div > div {
+    background-color: #1f2937 !important;
+    border: 1px solid #374151 !important;
+}
+
+[data-theme="dark"] section[data-testid="stSidebar"] .stSelectbox > div > div > div {
+    color: #f9fafb !important;
 }
 
 /* Ensure proper contrast in dark mode */
