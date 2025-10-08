@@ -280,7 +280,7 @@ if S.cid:
             try:
                 resp = llm_client.chat_completion(
                     model=MODEL, messages=[{"role":"user","content":prompt}],
-                    max_tokens=700, temperature=0.4, stream=True
+                    max_tokens=2000, temperature=0.4, stream=True
                 )
                 for chunk in resp:
                     delta = getattr(chunk.choices[0],"delta",None)
@@ -288,7 +288,7 @@ if S.cid:
                     ans += str(tok or ""); box.markdown(ans+"▌")
                 box.markdown(ans)
             except Exception:
-                gen = llm_client.text_generation(prompt,max_new_tokens=700,temperature=0.4)
+                gen = llm_client.text_generation(prompt,max_new_tokens=2000,temperature=0.4)
                 ans = gen if isinstance(gen,str) else str(gen)
                 box.markdown(ans)
         insert_msg(S.cid,"assistant",ans,src)
