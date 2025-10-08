@@ -41,146 +41,24 @@ if PINECONE_INDEX not in pc.list_indexes().names():
 index = pc.Index(PINECONE_INDEX)
 
 # ===========================================
-# STYLE - Dark & Light Theme Support
+# STYLE
 # ===========================================
 st.markdown("""
 <style>
-:root{
-    --grad:linear-gradient(90deg,#8b5cf6,#6366f1);
-    --radius:10px;
-}
-
-/* Light theme variables */
-.stApp {
-    --sidebar-bg: #f5f3ff;
-    --sidebar-border: #e9d5ff;
-    --sidebar-text: #4f46e5;
-    --chat-user-bg: #eef2ff;
-    --chat-assistant-bg: #f3f4f6;
-    --desc-text: #6b7280;
-    --upload-border: #c7d2fe;
-}
-
-/* Dark theme variables */
-[data-theme="dark"] {
-    --sidebar-bg: #0f0f23;
-    --sidebar-border: #2d1b69;
-    --sidebar-text: #e0e7ff;
-    --chat-user-bg: #1e1b4b;
-    --chat-assistant-bg: #111827;
-    --desc-text: #d1d5db;
-    --upload-border: #6366f1;
-}
-
-/* Sidebar styling */
-section[data-testid="stSidebar"]{
-    background: var(--sidebar-bg) !important;
-    border-right: 1px solid var(--sidebar-border) !important;
-}
-section[data-testid="stSidebar"] h2,h3{
-    color: var(--sidebar-text) !important;
-    font-weight: 700;
-}
-
-/* Button styling */
-.stButton>button{
-    background: var(--grad) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px;
-    padding: 0.4rem 0.8rem;
-    font-weight: 600;
-    transition: 0.2s;
-}
-.stButton>button:hover{
-    filter: brightness(1.1);
-}
-
-/* File uploader */
-.stFileUploader>section{
-    border: 2px dashed var(--upload-border) !important;
-    border-radius: var(--radius) !important;
-}
-
-/* Title styling */
-h1{
-    background: var(--grad);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-    text-align: center;
-    margin-top: -0.5rem;
-    margin-bottom: 0.3rem;
-}
-
-/* Description text */
-p.desc{
-    text-align: center;
-    color: var(--desc-text);
-    margin-top: -10px;
-}
-
-/* Chat message styling */
+:root{--grad:linear-gradient(90deg,#8b5cf6,#6366f1);--radius:10px;}
+section[data-testid="stSidebar"]{background:#f5f3ff!important;border-right:1px solid #e9d5ff;}
+section[data-testid="stSidebar"] h2,h3{color:#4f46e5;font-weight:700;}
+.stButton>button{background:var(--grad)!important;color:white!important;border:none!important;
+border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;transition:0.2s;}
+.stButton>button:hover{filter:brightness(1.1);}
+.stFileUploader>section{border:2px dashed #c7d2fe!important;border-radius:var(--radius)!important;}
+h1{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+font-weight:800;text-align:center;margin-top:-0.5rem;margin-bottom:0.3rem;}
+p.desc{text-align:center;color:#6b7280;margin-top:-10px;}
 .stChatMessage[data-testid="assistant-message"] .stMarkdown{
-    background: var(--chat-assistant-bg);
-    border-left: 4px solid #6366f1;
-    border-radius: var(--radius);
-    padding: 0.7rem;
-}
-
+background:#f3f4f6;border-left:4px solid #6366f1;border-radius:var(--radius);padding:0.7rem;}
 .stChatMessage[data-testid="user-message"] .stMarkdown{
-    background: var(--chat-user-bg);
-    border-right: 4px solid #a855f7;
-    border-radius: var(--radius);
-    padding: 0.7rem;
-}
-
-/* Dark theme specific adjustments */
-[data-theme="dark"] .stChatMessage[data-testid="assistant-message"] .stMarkdown{
-    border-left-color: #818cf8;
-}
-
-[data-theme="dark"] .stChatMessage[data-testid="user-message"] .stMarkdown{
-    border-right-color: #c084fc;
-}
-
-/* Dark theme sidebar improvements */
-[data-theme="dark"] section[data-testid="stSidebar"] {
-    background: #0f0f23 !important;
-    border-right: 1px solid #2d1b69 !important;
-}
-
-[data-theme="dark"] section[data-testid="stSidebar"] h2,
-[data-theme="dark"] section[data-testid="stSidebar"] h3 {
-    color: #e0e7ff !important;
-    font-weight: 700;
-}
-
-[data-theme="dark"] section[data-testid="stSidebar"] .stSelectbox label,
-[data-theme="dark"] section[data-testid="stSidebar"] .stToggle label,
-[data-theme="dark"] section[data-testid="stSidebar"] .stCaption {
-    color: #d1d5db !important;
-}
-
-[data-theme="dark"] section[data-testid="stSidebar"] .stSelectbox > div > div {
-    background-color: #1f2937 !important;
-    border: 1px solid #374151 !important;
-}
-
-[data-theme="dark"] section[data-testid="stSidebar"] .stSelectbox > div > div > div {
-    color: #f9fafb !important;
-}
-
-/* Ensure proper contrast in dark mode */
-[data-theme="dark"] .stMarkdown h1,
-[data-theme="dark"] .stMarkdown h2,
-[data-theme="dark"] .stMarkdown h3 {
-    color: #f8fafc;
-}
-
-[data-theme="dark"] .stMarkdown p {
-    color: #e2e8f0;
-}
+background:#eef2ff;border-right:4px solid #a855f7;border-radius:var(--radius);padding:0.7rem;}
 </style>
 """, unsafe_allow_html=True)
 
