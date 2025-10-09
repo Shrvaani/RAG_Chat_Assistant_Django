@@ -311,8 +311,8 @@ if use_rag:
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
     
-    # Display PDFs uploaded to this chat
-    if S.cid:
+    # Display PDFs uploaded to this chat (only when not uploading)
+    if S.cid and not files:
         current_chat_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).execute().data
         if current_chat_pdfs:
             st.caption("PDFs in this chat:")
