@@ -307,15 +307,8 @@ if use_rag:
                        for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
             index.upsert(vectors=upserts)
             os.unlink(path)  # Clean up temp file
-        # Set flag to show toast after processing
-        st.session_state.show_pdf_toast = True
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
-    
-    # Show toast notification if PDF was just uploaded
-    if st.session_state.get("show_pdf_toast", False):
-        st.toast("✅ PDF uploaded successfully!", icon="✅")
-        st.session_state.show_pdf_toast = False  # Clear the flag
     
     # Display PDFs uploaded to this chat
     if S.cid:
