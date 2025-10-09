@@ -317,14 +317,7 @@ if use_rag:
         if current_chat_pdfs:
             st.caption("PDFs in this chat:")
             for pdf in current_chat_pdfs:
-                col1, col2 = st.columns([0.9, 0.1])
-                with col1:
-                    st.markdown(f"📄 {pdf['filename']}")
-                with col2:
-                    if st.button("X", key=f"del_pdf_{pdf['id']}", help="Delete PDF"):
-                        cleanup_old_pdf_vectors(pdf['id'])
-                        supabase.table("pdfs").delete().eq("id", pdf['id']).execute()
-                        st.rerun()
+                st.markdown(f"📄 {pdf['filename']}")
 
 # ===========================================
 # CHAT DISPLAY
