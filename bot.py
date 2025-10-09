@@ -248,8 +248,6 @@ with st.sidebar:
                 S.confirm_clear = False
                 st.rerun()
 
-    st.caption("HF Token: ✅ set")
-
 # ===========================================
 # HEADER
 # ===========================================
