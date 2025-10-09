@@ -308,12 +308,11 @@ if use_rag:
             index.upsert(vectors=upserts)
             os.unlink(path)  # Clean up temp file
         st.success("✅ PDF has been successfully uploaded")
-        st.rerun()  # Refresh to clear the uploader widget
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
     
-    # Display PDFs uploaded to this chat (only show if no files are being uploaded)
-    if S.cid and not files:
+    # Display PDFs uploaded to this chat
+    if S.cid:
         current_chat_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).execute().data
         if current_chat_pdfs:
             st.caption("PDFs in this chat:")
