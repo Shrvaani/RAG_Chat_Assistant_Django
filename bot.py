@@ -184,7 +184,6 @@ if "confirm_clear" not in S: S.confirm_clear = False
 # ===========================================
 with st.sidebar:
     st.header("Sessions")
-    st.caption(f"User: {S.uid[:8]}...")  # Show first 8 chars of user ID
     level = st.selectbox("Reasoning Level", ["Low","Medium","High"], index=1)
     use_rag = st.toggle("Use RAG (ground answers in PDFs when available)", value=True)
 
