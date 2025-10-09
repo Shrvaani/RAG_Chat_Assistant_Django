@@ -307,7 +307,7 @@ if use_rag:
                        for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
             index.upsert(vectors=upserts)
             os.unlink(path)  # Clean up temp file
-        st.success("✅ PDF has been successfully uploaded")
+        st.toast("✅ PDF uploaded successfully!", icon="✅")
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
     
