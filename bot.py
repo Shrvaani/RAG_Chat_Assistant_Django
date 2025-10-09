@@ -52,15 +52,16 @@ section[data-testid="stSidebar"] h2,h3{color:#1e3a8a;font-weight:700;}
 border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;transition:0.2s;}
 .stButton>button:hover{filter:brightness(1.1);}
 .stFileUploader>section{border:2px dashed #3b82f6!important;border-radius:var(--radius)!important;}
-h1{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-font-weight:800;font-size:2.5rem;text-align:center;margin-top:-1rem;margin-bottom:0.5rem;}
-p.desc{text-align:center;color:#6b7280;margin-top:-15px;margin-bottom:1rem;}
+h1{background:var(--grad)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;
+font-weight:800!important;font-size:2rem!important;text-align:center!important;margin-top:-2rem!important;margin-bottom:0.5rem!important;}
+p.desc{text-align:center!important;color:#6b7280!important;margin-top:-20px!important;margin-bottom:0.5rem!important;}
 .stChatMessage[data-testid="assistant-message"] .stMarkdown{
 background:#f3f4f6;border-left:4px solid #1e3a8a;border-radius:var(--radius);padding:0.7rem;}
 .stChatMessage[data-testid="user-message"] .stMarkdown{
 background:#f0f4ff;border-right:4px solid #1e40af;border-radius:var(--radius);padding:0.7rem;}
-.main .block-container{padding-top:0.5rem;}
-.stApp{padding-top:0rem;}
+.main .block-container{padding-top:0rem!important;padding-bottom:0rem!important;}
+.stApp{padding-top:0rem!important;}
+div[data-testid="stHeader"]{display:none!important;}
 </style>
 """, unsafe_allow_html=True)
 
