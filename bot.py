@@ -74,6 +74,23 @@ def get_user_id():
     session_info = f"{st.session_state.get('_streamlit_session_id', 'default')}_{time.time()}"
     return hashlib.md5(session_info.encode()).hexdigest()[:16]
 
+def get_next_chat_number(uid):
+    """Get the next sequential chat number for a user"""
+    chats = supabase_chats(uid)
+    if not chats:
+        return 1
+    # Extract numbers from existing chat titles
+    chat_numbers = []
+    for chat in chats:
+        title = chat.get('title', '')
+        if title.startswith('Chat '):
+            try:
+                num = int(title.split('Chat ')[1])
+                chat_numbers.append(num)
+            except (ValueError, IndexError):
+                continue
+    return max(chat_numbers, default=0) + 1
+
 def embed_texts(txts: List[str]) -> List[List[float]]:
     arr = emb_client.feature_extraction(txts)
     if isinstance(arr, list) and isinstance(arr[0], list):
@@ -191,7 +208,8 @@ with st.sidebar:
     use_rag = st.toggle("Use RAG (ground answers in PDFs when available)", value=True)
 
     if st.button("New Chat", use_container_width=True):
-        S.cid = insert_chat(S.uid, f"Chat {int(time.time())}")
+        chat_number = get_next_chat_number(S.uid)
+        S.cid = insert_chat(S.uid, f"Chat {chat_number}")
         S.msgs = []; st.rerun()
 
     st.subheader("Conversations")
