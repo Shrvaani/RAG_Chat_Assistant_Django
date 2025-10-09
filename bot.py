@@ -290,12 +290,10 @@ if use_rag:
                 old_pdf_id = existing_pdfs[0]["id"]
                 cleanup_old_pdf_vectors(old_pdf_id)
                 pid = old_pdf_id
-                st.success(f"🔄 Updated PDF: {f.name}")
             else:
                 # New PDF for this chat, insert record
                 rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
                 pid = rec.data[0]["id"]
-                st.success(f"📄 New PDF: {f.name}")
             
             with NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 tmp.write(f.read()); path = tmp.name
@@ -309,7 +307,7 @@ if use_rag:
                        for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
             index.upsert(vectors=upserts)
             os.unlink(path)  # Clean up temp file
-        st.success("✅ PDF(s) uploaded and embedded.")
+        st.success("✅ PDF has been successfully uploaded")
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
     
