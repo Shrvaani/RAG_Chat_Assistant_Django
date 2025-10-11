@@ -1,4 +1,3 @@
-# bot.py — Chat + Document Q&A (RAG + Reliable Delete + Confirmed Clear-All + No Auto Chat)
 import os, json, time, hashlib
 from tempfile import NamedTemporaryFile
 from typing import List
@@ -11,9 +10,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from supabase import create_client
 from pinecone import Pinecone, ServerlessSpec
 
-# ===========================================
-# ENV SETUP
-# ===========================================
 load_dotenv()
 st.set_page_config(page_title="Chat + Document Q&A (RAG)", layout="wide")
 
@@ -26,9 +22,6 @@ MODEL = "openai/gpt-oss-20b"
 
 assert all([HF_TOKEN, SUPABASE_URL, SUPABASE_KEY, PINECONE_API_KEY]), "⚠️ Missing API credentials!"
 
-# ===========================================
-# CLIENTS
-# ===========================================
 llm_client = InferenceClient(model=MODEL, token=HF_TOKEN)
 emb_client = InferenceClient(model="sentence-transformers/all-mpnet-base-v2", token=HF_TOKEN)
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -40,9 +33,6 @@ if PINECONE_INDEX not in pc.list_indexes().names():
     )
 index = pc.Index(PINECONE_INDEX)
 
-# ===========================================
-# STYLE
-# ===========================================
 st.markdown("""
 <style>
 :root{--grad:linear-gradient(90deg,#1e3a8a,#1e40af);--radius:10px;}
@@ -65,21 +55,14 @@ div[data-testid="stHeader"]{display:none!important;}
 </style>
 """, unsafe_allow_html=True)
 
-# ===========================================
-# HELPERS
-# ===========================================
 def get_user_id():
-    """Generate a unique user ID based on session info"""
-    # Create a unique identifier for this user session
     session_info = f"{st.session_state.get('_streamlit_session_id', 'default')}_{time.time()}"
     return hashlib.md5(session_info.encode()).hexdigest()[:16]
 
 def get_next_chat_number(uid):
-    """Get the next sequential chat number for a user"""
     chats = supabase_chats(uid)
     if not chats:
         return 1
-    # Extract numbers from existing chat titles
     chat_numbers = []
     for chat in chats:
         title = chat.get('title', '')
@@ -100,19 +83,17 @@ def embed_texts(txts: List[str]) -> List[List[float]]:
 
 def retrieve(q: str, chat_id: str, top_k=10, thr=0.01):
     qv = embed_texts([q])[0]
-    # Get PDF IDs for this specific chat
     pdfs_in_chat = supabase.table("pdfs").select("id").eq("chat_id", chat_id).execute().data
     pdf_ids = [pdf["id"] for pdf in pdfs_in_chat]
     
     if not pdf_ids:
-        return [], []  # No PDFs in this chat
+        return [], []
     
-    # Query only vectors from PDFs in this chat
     res = index.query(
         vector=qv, 
         top_k=top_k, 
         include_metadata=True,
-        filter={"pdf_id": {"$in": pdf_ids}}  # Only search within this chat's PDFs
+        filter={"pdf_id": {"$in": pdf_ids}}
     )
     hits = [m for m in res["matches"] if m["score"] >= thr] or res["matches"][:3]
     ctx, src = [], []
@@ -136,18 +117,12 @@ def insert_chat(uid,title): return supabase.table("chats").insert({"user_id":uid
 def insert_msg(cid,role,txt,src): supabase.table("messages").insert({"chat_id":cid,"role":role,"content":txt,"sources":json.dumps(src)}).execute()
 
 def cleanup_old_pdf_vectors(pdf_id):
-    """Remove old vectors for a PDF when re-uploading"""
     try:
-        # Delete vectors that start with this pdf_id
         index.delete(filter={"pdf_id": pdf_id})
     except Exception as e:
         print(f"Warning: Could not cleanup old vectors: {e}")
 
-# ===========================================
-# RELIABLE DELETE HELPERS
-# ===========================================
 def cascade_delete_chat(chat_id: str, title: str):
-    """Sequential verified delete with retries."""
     with st.spinner(f"🧹 Deleting '{title}'..."):
         for _ in range(5):
             supabase.table("pdfs").delete().eq("chat_id", chat_id).execute()
@@ -165,7 +140,6 @@ def cascade_delete_chat(chat_id: str, title: str):
             st.warning(f"⚠️ Chat '{title}' still has linked records; please retry.")
 
 def cascade_clear_all():
-    """Reliable cleanup for UUID tables."""
     with st.spinner("🧹 Clearing all chats..."):
         chats = supabase.table("chats").select("id").execute().data
         if not chats:
@@ -182,13 +156,9 @@ def cascade_clear_all():
         st.success("✅ All chats and PDFs removed successfully!")
         return True
 
-# ===========================================
-# STATE
-# ===========================================
 S = st.session_state
 if "uid" not in S: 
     S.uid = get_user_id()
-    # Store the user ID for this session
     st.session_state.user_id = S.uid
 if "cid" not in S or not S.cid:
     chats = supabase_chats(S.uid)
@@ -199,9 +169,6 @@ if "rename_id" not in S: S.rename_id = None
 if "rename_value" not in S: S.rename_value = ""
 if "confirm_clear" not in S: S.confirm_clear = False
 
-# ===========================================
-# SIDEBAR
-# ===========================================
 with st.sidebar:
     st.header("Sessions")
     level = st.selectbox("Reasoning Level", ["Low","Medium","High"], index=1)
@@ -245,11 +212,9 @@ with st.sidebar:
                     else: st.warning("Title cannot be empty.")
             with rc2:
                 if st.button("Cancel", key=f"cancel_{c['id']}", use_container_width=True):
-                    S.rename_id=None; S.rename_value=""; st.rerun()
+                    S.rename_id=None; S.rename_value="";                 st.rerun()
 
     st.divider()
-    
-    # Clear all chats with confirmation
     if not S.confirm_clear:
         if st.button("🗑 Clear All Chats", use_container_width=True, type="secondary"):
             S.confirm_clear = True
@@ -269,29 +234,20 @@ with st.sidebar:
                 S.confirm_clear = False
                 st.rerun()
 
-# ===========================================
-# HEADER
-# ===========================================
 st.markdown("<h1>RAG Chat Assistant</h1>", unsafe_allow_html=True)
 st.markdown("<p class='desc'>Freely available models on Hugging Face Inference API • Upload PDFs for grounded answers with citations.</p>", unsafe_allow_html=True)
 
-# ===========================================
-# PDF UPLOAD
-# ===========================================
 if use_rag:
     files = st.file_uploader("📤 Upload PDF(s)", type="pdf", accept_multiple_files=True, key=f"uploader_{S.cid}")
     if files and S.cid:
         for f in files:
-            # Check if PDF with same name already exists in THIS SPECIFIC CHAT only
             existing_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).eq("filename", f.name).execute().data
             
             if existing_pdfs:
-                # PDF already exists in this chat, clean up old vectors and update
                 old_pdf_id = existing_pdfs[0]["id"]
                 cleanup_old_pdf_vectors(old_pdf_id)
                 pid = old_pdf_id
             else:
-                # New PDF for this chat, insert record
                 rec = supabase.table("pdfs").insert({"chat_id": S.cid, "filename": f.name}).execute()
                 pid = rec.data[0]["id"]
             
@@ -306,12 +262,11 @@ if use_rag:
             upserts = [(f"{pid}_{i}", v, {"pdf_id": pid, "chunk_id": i, "page": c.metadata.get("page"), "text": t})
                        for i, (v, t, c) in enumerate(zip(vecs, texts, chunks))]
             index.upsert(vectors=upserts)
-            os.unlink(path)  # Clean up temp file
+            os.unlink(path)
         st.success("✅ PDF uploaded successfully")
     elif files and not S.cid:
         st.warning("⚠️ Create a chat before uploading PDFs.")
     
-    # Display PDFs uploaded to this chat (only when not uploading)
     if S.cid and not files:
         current_chat_pdfs = supabase.table("pdfs").select("*").eq("chat_id", S.cid).execute().data
         if current_chat_pdfs:
@@ -319,9 +274,6 @@ if use_rag:
             for pdf in current_chat_pdfs:
                 st.markdown(f"📄 {pdf['filename']}")
 
-# ===========================================
-# CHAT DISPLAY
-# ===========================================
 if S.cid and S.msgs:
     for m in S.msgs:
         with st.chat_message(m["role"]):
@@ -334,9 +286,6 @@ if S.cid and S.msgs:
                             st.caption(f"📄 Page {s.get('page')} (chunk {s.get('chunk_id')})")
                 except: pass
 
-# ===========================================
-# CHAT INPUT
-# ===========================================
 if S.cid:
     if q := st.chat_input("Type your message here..."):
         insert_msg(S.cid, "user", q, [])
