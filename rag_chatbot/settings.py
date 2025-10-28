@@ -77,26 +77,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'rag_chatbot.wsgi.application'
 
 # Database
-if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('DATABASE_URL'):
-    # Railway or production database
-    import dj_database_url
-    if os.getenv('DATABASE_URL'):
-        # Railway provides DATABASE_URL automatically
-        DATABASES = {
-            'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+import dj_database_url
+
+# Check for Railway DATABASE_URL first (Railway auto-provides this)
+if os.getenv('DATABASE_URL'):
+    # Railway PostgreSQL (preferred)
+    DATABASES = {
+        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'), conn_max_age=600)
+    }
+elif os.getenv('RAILWAY_ENVIRONMENT'):
+    # Railway environment but no DATABASE_URL - use Supabase as fallback
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('SUPABASE_DB_NAME'),
+            'USER': os.getenv('SUPABASE_DB_USER'),
+            'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD'),
+            'HOST': os.getenv('SUPABASE_DB_HOST'),
+            'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
         }
-    else:
-        # Supabase PostgreSQL (fallback)
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('SUPABASE_DB_NAME'),
-                'USER': os.getenv('SUPABASE_DB_USER'),
-                'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD'),
-                'HOST': os.getenv('SUPABASE_DB_HOST'),
-                'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
-            }
-        }
+    }
 elif os.getenv('VERCEL'):
     # Vercel production database (Supabase PostgreSQL)
     DATABASES = {
