@@ -26,7 +26,9 @@ RUN python manage.py collectstatic --noinput || true
 # Expose port
 EXPOSE $PORT
 
+# Create startup script
+RUN echo '#!/bin/bash\nset -e\npython manage.py migrate\nexec gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -' > /app/start.sh && chmod +x /app/start.sh
+
 # Run migrations and start server
-# Note: Railway will set DATABASE_URL and PORT automatically
-CMD python manage.py migrate && gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 2
+CMD ["/app/start.sh"]
 
