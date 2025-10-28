@@ -27,6 +27,6 @@ RUN python manage.py collectstatic --noinput || true
 EXPOSE $PORT
 
 # Run migrations and start server
-# Note: Railway will set DATABASE_URL automatically when PostgreSQL is connected
-CMD python manage.py migrate && gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:$PORT
+# Note: Railway will set DATABASE_URL and PORT automatically
+CMD python manage.py migrate && gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 2
 

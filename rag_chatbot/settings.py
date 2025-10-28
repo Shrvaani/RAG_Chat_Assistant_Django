@@ -23,9 +23,11 @@ ALLOWED_HOSTS = [
     '.railway.app',
     '.up.railway.app',
     'rag-chat-assistant-django.vercel.app',
+    'web-production-e2700.up.railway.app',
     'localhost',
     '127.0.0.1',
-    '0.0.0.0'
+    '0.0.0.0',
+    '*'
 ]
 
 # Application definition
