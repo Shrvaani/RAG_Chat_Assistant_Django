@@ -13,9 +13,6 @@ env/
 ENV/
 .venv
 
-# Streamlit
-.streamlit/secrets.toml
-
 # IDE
 .vscode/
 .idea/
@@ -35,3 +32,4 @@ chroma_db/
 *.tmp
 *.log
 
+.env
