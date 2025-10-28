@@ -79,24 +79,48 @@ WSGI_APPLICATION = 'rag_chatbot.wsgi.application'
 # Database
 import dj_database_url
 
+# Print debug info
+print(f"DEBUG: DATABASE_URL exists: {bool(os.getenv('DATABASE_URL'))}")
+print(f"DEBUG: RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT')}")
+print(f"DEBUG: VERCEL: {os.getenv('VERCEL')}")
+
 # Check for Railway DATABASE_URL first (Railway auto-provides this)
 if os.getenv('DATABASE_URL'):
     # Railway PostgreSQL (preferred)
+    print("DEBUG: Using DATABASE_URL from Railway")
     DATABASES = {
         'default': dj_database_url.config(default=os.getenv('DATABASE_URL'), conn_max_age=600)
     }
-elif os.getenv('RAILWAY_ENVIRONMENT'):
-    # Railway environment but no DATABASE_URL - use Supabase as fallback
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('SUPABASE_DB_NAME'),
-            'USER': os.getenv('SUPABASE_DB_USER'),
-            'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD'),
-            'HOST': os.getenv('SUPABASE_DB_HOST'),
-            'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
+elif os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('RAILWAY'):
+    # Railway environment but no DATABASE_URL - check if we should use Supabase
+    # Only use Supabase if we're NOT on Railway with PostgreSQL connected
+    print("DEBUG: Railway environment detected but no DATABASE_URL")
+    if all([
+        os.getenv('SUPABASE_DB_NAME'),
+        os.getenv('SUPABASE_DB_USER'),
+        os.getenv('SUPABASE_DB_PASSWORD'),
+        os.getenv('SUPABASE_DB_HOST')
+    ]):
+        print("DEBUG: Falling back to Supabase database")
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('SUPABASE_DB_NAME'),
+                'USER': os.getenv('SUPABASE_DB_USER'),
+                'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD'),
+                'HOST': os.getenv('SUPABASE_DB_HOST'),
+                'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
+            }
         }
-    }
+    else:
+        # No database configured - use SQLite as last resort
+        print("DEBUG: No database configured, using SQLite")
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 elif os.getenv('VERCEL'):
     # Vercel production database (Supabase PostgreSQL)
     DATABASES = {
