@@ -22,6 +22,7 @@ ALLOWED_HOSTS = [
     '.now.sh',
     '.railway.app',
     '.up.railway.app',
+    'rag-chat-assistant-django.vercel.app',
     'localhost',
     '127.0.0.1',
     '0.0.0.0'
