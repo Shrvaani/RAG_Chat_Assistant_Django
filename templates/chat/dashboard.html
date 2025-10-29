@@ -752,7 +752,8 @@ function loadUploadedPDFs(chatId) {
     }
 
     function logout() {
-        showConfirmModal('Are you sure you want to logout?', () => {
+        const userEmail = '{{ user.email|default:user.username }}';
+        showLogoutModal(userEmail, () => {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '/accounts/logout/';
@@ -765,6 +766,57 @@ function loadUploadedPDFs(chatId) {
             document.body.appendChild(form);
             form.submit();
         });
+    }
+
+    // Logout confirmation modal (ChatGPT-style)
+    function showLogoutModal(userEmail, onOk) {
+        let modal = document.getElementById('logout-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'logout-modal';
+            modal.innerHTML = `
+            <div class="logout-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:10000;">
+              <div class="logout-card" style="background:#2d2d2d;border:1px solid #404040;color:#ffffff;border-radius:12px;min-width:320px;max-width:90vw;width:400px;box-shadow:0 12px 28px rgba(0,0,0,0.5);padding:24px;">
+                <div style="margin-bottom:16px;">
+                  <div style="font-size:18px;font-weight:600;color:#ffffff;margin-bottom:8px;">Are you sure you want to log out?</div>
+                  <div style="font-size:14px;font-weight:400;color:#e0e0e0;line-height:1.5;">Log out of ChatGPT as ${userEmail}?</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <button type="button" id="logout-confirm" style="background:#ffffff;border:1px solid #4a9eff;color:#2d2d2d;padding:10px 16px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;width:100%;transition:opacity 0.2s;">Log out</button>
+                  <button type="button" id="logout-cancel" style="background:#3a3a3a;border:1px solid #404040;color:#ffffff;padding:10px 16px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;width:100%;transition:background-color 0.2s;">Cancel</button>
+                </div>
+              </div>
+            </div>`;
+            document.body.appendChild(modal);
+            
+            // Add hover effects
+            const confirmBtn = modal.querySelector('#logout-confirm');
+            const cancelBtn = modal.querySelector('#logout-cancel');
+            confirmBtn.addEventListener('mouseenter', () => { confirmBtn.style.opacity = '0.9'; });
+            confirmBtn.addEventListener('mouseleave', () => { confirmBtn.style.opacity = '1'; });
+            cancelBtn.addEventListener('mouseenter', () => { cancelBtn.style.background = '#404040'; });
+            cancelBtn.addEventListener('mouseleave', () => { cancelBtn.style.background = '#3a3a3a'; });
+        } else {
+            modal.querySelector('.logout-card > div:first-child > div:last-child').textContent = `Log out of ChatGPT as ${userEmail}?`;
+            modal.style.display = 'flex';
+        }
+        
+        const close = () => { 
+            modal.style.display = 'none';
+        };
+        
+        const backdrop = modal.querySelector('.logout-backdrop');
+        backdrop.onclick = (e) => {
+            if (e.target === backdrop) {
+                close();
+            }
+        };
+        
+        modal.querySelector('#logout-cancel').onclick = close;
+        modal.querySelector('#logout-confirm').onclick = () => { 
+            close(); 
+            onOk && onOk(); 
+        };
     }
 
     // Reusable confirm modal
