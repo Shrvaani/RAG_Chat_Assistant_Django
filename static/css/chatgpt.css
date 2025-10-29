@@ -101,6 +101,11 @@ body.sidebar-collapsed .main-content {
     margin-right: 16px;
 }
 
+/* Show button visible when sidebar is collapsed on desktop */
+body.sidebar-collapsed .sidebar-show-btn {
+    display: flex !important;
+}
+
 .sidebar-show-btn:hover {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.4);
@@ -1506,9 +1511,19 @@ body:not(.chat-active) .input-container {
         display: flex !important;
     }
     
+    /* Hide the show button when sidebar is open on mobile */
+    body.sidebar-open-mobile .sidebar-show-btn {
+        display: none !important;
+    }
+    
     /* Hide the sidebar hide button when sidebar is not open on mobile */
     .sidebar:not(.open) .sidebar-toggle-btn {
         display: none;
+    }
+    
+    /* Show the hide button when sidebar is open on mobile */
+    .sidebar.open .sidebar-toggle-btn {
+        display: flex !important;
     }
     
     .chat-header {

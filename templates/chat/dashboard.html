@@ -126,7 +126,7 @@
     <div class="main-content">
         <div class="chat-header">
             <!-- Sidebar show button (visible when sidebar is hidden) -->
-            <button id="sidebar-show-btn" class="sidebar-show-btn" onclick="showSidebar()" title="Show sidebar" style="display: none;">
+            <button id="sidebar-show-btn" class="sidebar-show-btn" onclick="showSidebar()" title="Show sidebar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M13 18l6-6-6-6M5 18l6-6-6-6"/>
                 </svg>
@@ -780,6 +780,7 @@ function loadUploadedPDFs(chatId) {
             // Mobile: slide out
             sidebar.classList.remove('open');
             if (backdrop) backdrop.classList.remove('show');
+            document.body.classList.remove('sidebar-open-mobile');
             document.body.style.overflow = '';
         } else {
             // Desktop: collapse
@@ -788,8 +789,14 @@ function loadUploadedPDFs(chatId) {
         }
         
         // Show the show button, hide the hide button
-        if (showBtn) showBtn.style.display = 'flex';
-        if (hideBtn) hideBtn.style.display = 'none';
+        if (isMobile()) {
+            // On mobile, CSS handles show button visibility automatically
+            if (hideBtn) hideBtn.style.display = 'none';
+        } else {
+            // Desktop: set inline styles
+            if (showBtn) showBtn.style.display = 'flex';
+            if (hideBtn) hideBtn.style.display = 'none';
+        }
         
         // Save state to localStorage
         localStorage.setItem('sidebar-hidden', 'true');
@@ -815,6 +822,7 @@ function loadUploadedPDFs(chatId) {
             
             sidebar.classList.add('open');
             backdrop.classList.add('show');
+            document.body.classList.add('sidebar-open-mobile');
             document.body.style.overflow = 'hidden';
         } else {
             // Desktop: expand
@@ -823,7 +831,10 @@ function loadUploadedPDFs(chatId) {
         }
         
         // Hide the show button, show the hide button
-        if (showBtn) showBtn.style.display = 'none';
+        // On mobile, keep show button visible (CSS will handle it)
+        if (!isMobile()) {
+            if (showBtn) showBtn.style.display = 'none';
+        }
         if (hideBtn) hideBtn.style.display = 'flex';
         
         // Save state to localStorage
@@ -839,8 +850,9 @@ function loadUploadedPDFs(chatId) {
         if (!sidebar) return;
         
         if (isMobile()) {
-            // On mobile, sidebar is hidden by default - show the show button
-            if (showBtn) showBtn.style.display = 'flex';
+            // On mobile, sidebar is hidden by default
+            // CSS handles showing the show button automatically
+            // Don't set inline styles, let CSS with !important handle it
             if (hideBtn) hideBtn.style.display = 'none'; // Hide button hidden until sidebar opens
         } else {
             // Desktop: Check localStorage for saved state
@@ -865,10 +877,11 @@ function loadUploadedPDFs(chatId) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 if (isMobile()) {
-                    // On mobile, ensure sidebar is closed by default after resize
+                    // On mobile, CSS handles button visibility automatically
+                    // Just ensure sidebar state is correct
                     if (!sidebar.classList.contains('open')) {
-                        if (showBtn) showBtn.style.display = 'flex';
-                        if (hideBtn) hideBtn.style.display = 'flex';
+                        document.body.classList.remove('sidebar-open-mobile');
+                        // Let CSS handle button visibility
                     }
                 }
             }, 250);
