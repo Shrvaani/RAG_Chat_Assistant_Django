@@ -157,6 +157,7 @@ body.sidebar-collapsed .sidebar-show-btn {
 
 .sidebar-header .rag-toggle-sidebar {
     margin-bottom: 0;
+    margin-top: 56px; /* Position below hide button (16px top + 32px height + 8px gap) */
 }
 
 .new-chat-btn {
