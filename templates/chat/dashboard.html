@@ -119,8 +119,8 @@
     <!-- Main Chat Area -->
     <div class="main-content">
         <div class="chat-header">
-            <button id="sidebar-toggle-btn" class="menu-toggle" title="Toggle sidebar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button id="sidebar-toggle-btn" class="menu-toggle" title="Toggle sidebar" style="display: flex !important; visibility: visible !important; opacity: 1 !important; background: rgba(255,255,255,0.15) !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #fff !important; width: 40px !important; height: 40px !important; border-radius: 8px !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; flex-shrink: 0 !important; margin-right: 16px !important; position: relative !important; z-index: 100 !important;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -919,10 +919,14 @@ function loadUploadedPDFs(chatId) {
     }
 
     // Sidebar toggle logic (mobile + desktop)
-    (function initSidebarToggle(){
+    // Sidebar toggle initialization - ensure it runs after DOM is ready
+    function initSidebarToggle(){
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
-        if (!sidebar || !toggleBtn) return;
+        if (!sidebar || !toggleBtn) {
+            console.warn('Sidebar or toggle button not found');
+            return;
+        }
 
         let backdrop = document.getElementById('sidebar-backdrop');
         if (!backdrop) {
@@ -972,7 +976,14 @@ function loadUploadedPDFs(chatId) {
         backdrop.addEventListener('click', closeMobile);
         window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMobile(); });
         window.addEventListener('resize', ()=>{ if (!isMobile()) closeMobile(); });
-    })();
+    }
+    
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarToggle);
+    } else {
+        initSidebarToggle();
+    }
 
     function closeAllDropdowns() {
         document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
