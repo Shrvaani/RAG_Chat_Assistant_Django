@@ -646,7 +646,7 @@ body.sidebar-collapsed .sidebar-show-btn {
     font-size: 14px;
     color: var(--text-secondary);
     margin: 0;
-    margin-left: -4px;
+    margin-left: 50px;
     font-weight: 400;
     line-height: 1.4;
 }
