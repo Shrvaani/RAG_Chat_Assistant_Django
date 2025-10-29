@@ -932,6 +932,21 @@ function loadUploadedPDFs(chatId) {
             document.body.appendChild(backdrop);
         }
 
+        // Create floating mobile button
+        let floatingBtn = document.getElementById('floating-menu-btn');
+        if (!floatingBtn) {
+            floatingBtn = document.createElement('button');
+            floatingBtn.id = 'floating-menu-btn';
+            floatingBtn.className = 'floating-menu-btn';
+            floatingBtn.innerHTML = `
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>`;
+            document.body.appendChild(floatingBtn);
+        }
+
         function isMobile(){ return window.innerWidth <= 1024; }
 
         function openMobile(){
@@ -953,6 +968,7 @@ function loadUploadedPDFs(chatId) {
         }
 
         toggleBtn.addEventListener('click', toggle);
+        floatingBtn.addEventListener('click', toggle);
         backdrop.addEventListener('click', closeMobile);
         window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMobile(); });
         window.addEventListener('resize', ()=>{ if (!isMobile()) closeMobile(); });

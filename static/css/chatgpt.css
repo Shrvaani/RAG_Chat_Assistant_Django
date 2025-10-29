@@ -467,7 +467,8 @@ body {
     cursor: pointer;
     flex-shrink: 0;
     margin-right: 16px;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 .menu-toggle:hover { 
     opacity: 0.9; 
@@ -537,6 +538,28 @@ body {
     z-index: 900;
 }
 .sidebar-backdrop.show { display: block; }
+
+/* Floating menu button for mobile */
+.floating-menu-btn {
+    position: fixed;
+    left: 16px;
+    bottom: 20px;
+    z-index: 1100;
+    display: none;
+    background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+    color: #fff;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    align-items: center;
+    justify-content: center;
+}
+.floating-menu-btn svg { pointer-events: none; }
+@media (max-width: 1024px) {
+    .floating-menu-btn { display: inline-flex; }
+}
 
 .chat-title-section h1 {
     font-size: 30px;
