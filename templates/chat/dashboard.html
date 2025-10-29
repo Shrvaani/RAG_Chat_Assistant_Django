@@ -120,6 +120,13 @@
     <div class="main-content">
         <div class="chat-header">
             <div class="chat-title-section">
+                <button id="sidebar-toggle-btn" class="menu-toggle" title="Toggle sidebar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
                 <h1 id="chat-title">RAG Chat Assistant</h1>
             </div>
         </div>
@@ -910,6 +917,46 @@ function loadUploadedPDFs(chatId) {
         }
         return cookieValue;
     }
+
+    // Sidebar toggle logic (mobile + desktop)
+    (function initSidebarToggle(){
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        if (!sidebar || !toggleBtn) return;
+
+        let backdrop = document.getElementById('sidebar-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'sidebar-backdrop';
+            backdrop.id = 'sidebar-backdrop';
+            document.body.appendChild(backdrop);
+        }
+
+        function isMobile(){ return window.innerWidth <= 1024; }
+
+        function openMobile(){
+            sidebar.classList.add('open');
+            backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMobile(){
+            sidebar.classList.remove('open');
+            backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        function toggle(){
+            if (isMobile()) {
+                if (sidebar.classList.contains('open')) closeMobile(); else openMobile();
+            } else {
+                sidebar.classList.toggle('desktop-collapsed');
+            }
+        }
+
+        toggleBtn.addEventListener('click', toggle);
+        backdrop.addEventListener('click', closeMobile);
+        window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMobile(); });
+        window.addEventListener('resize', ()=>{ if (!isMobile()) closeMobile(); });
+    })();
 
     function closeAllDropdowns() {
         document.querySelectorAll('.dropdown-menu.show').forEach(menu => {

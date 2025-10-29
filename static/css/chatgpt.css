@@ -453,6 +453,21 @@ body {
     box-sizing: border-box;
 }
 
+/* Sidebar toggle (hamburger) */
+.menu-toggle {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.menu-toggle:hover { opacity: 0.9; }
+
 .chat-header {
     padding: 20px 32px;
     border-bottom: none;
@@ -477,6 +492,39 @@ body {
     margin-left: 350px;
     max-width: calc(100vw - 600px); /* Prevent overflow when zoomed out */
 }
+
+/* Responsive sidebar behavior */
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 1000;
+        width: var(--sidebar-width);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .chat-title-section { margin-left: 0; max-width: 100%; }
+}
+
+/* Desktop collapse */
+@media (min-width: 1025px) {
+    .sidebar.desktop-collapsed {
+        width: 0;
+        border-right: none;
+    }
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 900;
+}
+.sidebar-backdrop.show { display: block; }
 
 .chat-title-section h1 {
     font-size: 30px;
