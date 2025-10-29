@@ -160,6 +160,66 @@ body.sidebar-collapsed .sidebar-show-btn {
     margin-top: 56px; /* Position below hide button (16px top + 32px height + 8px gap) */
 }
 
+.reasoning-level-container {
+    margin-top: 16px;
+    margin-bottom: 12px;
+}
+
+.reasoning-level-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.reasoning-level-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.reasoning-level-select {
+    width: 100%;
+    padding: 10px 32px 10px 12px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-family: system-ui, -apple-system, sans-serif;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reasoning-level-select:hover {
+    border-color: #b0b0b0;
+}
+
+.reasoning-level-select:focus {
+    outline: none;
+    border-color: #4a9eff;
+    box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+}
+
+.reasoning-level-select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #666;
+    pointer-events: none;
+}
+
 .new-chat-btn {
     width: 100%;
     background-color: transparent;

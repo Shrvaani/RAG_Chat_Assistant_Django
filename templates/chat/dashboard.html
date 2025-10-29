@@ -8,18 +8,28 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
+            <!-- Sidebar hide button -->
+            <button id="sidebar-hide-btn" class="sidebar-toggle-btn" onclick="hideSidebar()" title="Hide sidebar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 18l-6-6 6-6M18 18l-6-6 6-6"/>
+                </svg>
+            </button>
             <div class="rag-toggle-sidebar">
                 <label class="toggle-switch">
                     <input type="checkbox" id="use-rag">
                     <span class="toggle-slider"></span>
                 </label>
                 <span class="toggle-label">Use RAG (ground answers in PDFs when available)</span>
-                <!-- Sidebar hide button placed next to RAG toggle -->
-                <button id="sidebar-hide-btn" class="sidebar-toggle-btn" onclick="hideSidebar()" title="Hide sidebar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 18l-6-6 6-6M18 18l-6-6 6-6"/>
-                    </svg>
-                </button>
+            </div>
+            <div class="reasoning-level-container">
+                <label class="reasoning-level-label">Reasoning Level</label>
+                <div class="reasoning-level-select-wrapper">
+                    <select id="reasoning-level" class="reasoning-level-select">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
             </div>
             <button class="new-chat-btn" onclick="createNewChat()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
