@@ -124,13 +124,13 @@
     
     <!-- Main Chat Area -->
     <div class="main-content">
+        <!-- Sidebar show button (fixed position, visible when sidebar is hidden) -->
+        <button id="sidebar-show-btn" class="sidebar-show-btn" onclick="showSidebar()" title="Show sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 18l6-6-6-6M5 18l6-6-6-6"/>
+            </svg>
+        </button>
         <div class="chat-header">
-            <!-- Sidebar show button (visible when sidebar is hidden) -->
-            <button id="sidebar-show-btn" class="sidebar-show-btn" onclick="showSidebar()" title="Show sidebar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M13 18l6-6-6-6M5 18l6-6-6-6"/>
-                </svg>
-            </button>
             <div class="chat-title-section">
                 <h1 id="chat-title">RAG Chat Assistant</h1>
             </div>
