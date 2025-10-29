@@ -43,8 +43,7 @@ body {
 /* Sidebar Styles */
 .sidebar {
     width: var(--sidebar-width);
-    /* Apply the same gradient palette used elsewhere */
-    background: linear-gradient(180deg, var(--grad-start), var(--grad-end));
+    background-color: var(--bg-secondary);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -387,7 +386,7 @@ body {
 .user-avatar {
     width: 32px;
     height: 32px;
-    background-color: var(--accent-primary);
+    background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -543,8 +542,8 @@ body {
 }
 
 input:checked + .toggle-slider {
-    background-color: var(--accent-primary);
-    border-color: var(--accent-primary);
+    background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+    border-color: transparent;
 }
 
 input:checked + .toggle-slider:before {
