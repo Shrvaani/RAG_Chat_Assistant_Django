@@ -1498,50 +1498,137 @@ function loadUploadedPDFs(chatId) {
 
     function deleteChat(chatId) {
         console.log('Delete chat requested for:', chatId);
-        if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
-            console.log('User confirmed deletion');
-            // Make API call to delete chat
-            fetch(`/api/chat/${chatId}/delete/`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => {
-                console.log('Delete response status:', response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Delete response data:', data);
-                if (data.success) {
-                    console.log('Chat deleted successfully');
-                    // Remove chat item from UI
-                    const chatItem = document.querySelector(`[data-chat-id="${chatId}"]`);
-                    console.log('Found chat item:', chatItem);
-                    if (chatItem) {
-                        chatItem.remove();
-                        console.log('Removed chat item from UI');
-                    }
-                    
-                    // If this was the current chat, redirect to dashboard
-                    if (currentChatId === chatId) {
-                        console.log('Redirecting to dashboard after deleting current chat');
-                        // Redirect to dashboard/home page
-                        window.location.href = '/chat/';
-                    }
-                } else {
-                    console.error('Delete failed:', data.error);
-                    alert('Error deleting chat: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting chat:', error);
-                alert('Error deleting chat: ' + error.message);
-            });
-        } else {
-            console.log('User cancelled deletion');
+        
+        // Find the chat title from the UI
+        const chatItem = document.querySelector(`[data-chat-id="${chatId}"]`);
+        const titleElement = chatItem ? chatItem.querySelector('.title-text') : null;
+        const chatTitle = titleElement ? titleElement.textContent.trim() : 'this chat';
+        
+        // Show delete confirmation modal
+        showDeleteChatModal(chatId, chatTitle);
+    }
+    
+    function showDeleteChatModal(chatId, chatTitle) {
+        // Escape HTML to prevent XSS
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+        
+        const escapedTitle = escapeHtml(chatTitle);
+        const escapedChatId = escapeHtml(chatId);
+        
+        let modal = document.getElementById('delete-chat-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'delete-chat-modal';
+            document.body.appendChild(modal);
         }
+        
+        modal.innerHTML = `
+            <div class="delete-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:10000;" onclick="event.target === event.currentTarget && closeDeleteChatModal()">
+              <div class="delete-card" style="background:#2d2d2d;border:1px solid #404040;color:#ffffff;border-radius:12px;min-width:400px;max-width:90vw;width:450px;box-shadow:0 12px 28px rgba(0,0,0,0.5);">
+                <!-- Title -->
+                <div style="padding:24px 24px 16px 24px;">
+                  <h2 style="margin:0;font-size:20px;font-weight:600;color:#ffffff;font-family:system-ui,-apple-system,sans-serif;">Delete chat?</h2>
+                </div>
+                
+                <!-- Body Text -->
+                <div style="padding:0 24px 24px 24px;">
+                  <p style="margin:0 0 8px 0;font-size:14px;line-height:1.5;color:#ffffff;font-family:system-ui,-apple-system,sans-serif;">
+                    This will delete <strong style="font-weight:600;">${escapedTitle}.</strong>
+                  </p>
+                  <p style="margin:0;font-size:14px;line-height:1.5;color:#ffffff;font-family:system-ui,-apple-system,sans-serif;">
+                    Visit <a href="#" onclick="event.preventDefault(); closeDeleteChatModal(); return false;" style="color:#ffffff;text-decoration:underline;cursor:pointer;">settings</a> to delete any memories saved during this chat.
+                  </p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="border-top:1px solid #404040;padding:16px 24px;display:flex;justify-content:flex-end;gap:12px;">
+                  <button onclick="closeDeleteChatModal()" class="delete-cancel-btn" style="background:#3d3d3d;border:1px solid #4d4d4d;color:#ffffff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;font-family:system-ui,-apple-system,sans-serif;transition:background-color 0.2s;">
+                    Cancel
+                  </button>
+                  <button onclick="confirmDeleteChat('${escapedChatId.replace(/'/g, "\\'")}')" class="delete-confirm-btn" style="background:#d32f2f;border:2px solid #4a9eff;color:#ffffff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;font-family:system-ui,-apple-system,sans-serif;transition:all 0.2s;outline:none;">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>`;
+        
+        modal.style.display = 'flex';
+        
+        // Add hover effects to buttons
+        const cancelBtn = modal.querySelector('.delete-cancel-btn');
+        const confirmBtn = modal.querySelector('.delete-confirm-btn');
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('mouseenter', () => { cancelBtn.style.backgroundColor = '#4d4d4d'; });
+            cancelBtn.addEventListener('mouseleave', () => { cancelBtn.style.backgroundColor = '#3d3d3d'; });
+        }
+        
+        if (confirmBtn) {
+            confirmBtn.addEventListener('mouseenter', () => { 
+                confirmBtn.style.backgroundColor = '#c62828';
+                confirmBtn.style.borderColor = '#4a9eff';
+            });
+            confirmBtn.addEventListener('mouseleave', () => { 
+                confirmBtn.style.backgroundColor = '#d32f2f';
+                confirmBtn.style.borderColor = '#4a9eff';
+            });
+        }
+    }
+    
+    function closeDeleteChatModal() {
+        const modal = document.getElementById('delete-chat-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    function confirmDeleteChat(chatId) {
+        console.log('User confirmed deletion for:', chatId);
+        closeDeleteChatModal();
+        
+        // Make API call to delete chat
+        fetch(`/api/chat/${chatId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => {
+            console.log('Delete response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Delete response data:', data);
+            if (data.success) {
+                console.log('Chat deleted successfully');
+                // Remove chat item from UI
+                const chatItem = document.querySelector(`[data-chat-id="${chatId}"]`);
+                console.log('Found chat item:', chatItem);
+                if (chatItem) {
+                    chatItem.remove();
+                    console.log('Removed chat item from UI');
+                }
+                
+                // If this was the current chat, redirect to dashboard
+                if (currentChatId === chatId) {
+                    console.log('Redirecting to dashboard after deleting current chat');
+                    // Redirect to dashboard/home page
+                    window.location.href = '/chat/';
+                }
+            } else {
+                console.error('Delete failed:', data.error);
+                alert('Error deleting chat: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting chat:', error);
+            alert('Error deleting chat: ' + error.message);
+        });
     }
 
     // Search functionality
