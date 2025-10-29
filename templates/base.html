@@ -60,5 +60,18 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     {% endif %}
     <script src="{% static 'js/chat.js' %}"></script>
+    <script>
+    // Auto-dismiss authenticated toast messages
+    (function() {
+        const container = document.querySelector('.messages-container');
+        if (container) {
+            setTimeout(() => {
+                container.style.transition = 'opacity 300ms ease';
+                container.style.opacity = '0';
+                setTimeout(() => container.remove(), 350);
+            }, 2500); // hide after 2.5s
+        }
+    })();
+    </script>
 </body>
 </html>
