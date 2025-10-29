@@ -8,6 +8,12 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
+            <!-- Sidebar hide button -->
+            <button id="sidebar-hide-btn" class="sidebar-toggle-btn" onclick="hideSidebar()" title="Hide sidebar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 18l-6-6 6-6M18 18l-6-6 6-6"/>
+                </svg>
+            </button>
             <div class="rag-toggle-sidebar">
                 <label class="toggle-switch">
                     <input type="checkbox" id="use-rag">
@@ -119,11 +125,10 @@
     <!-- Main Chat Area -->
     <div class="main-content">
         <div class="chat-header">
-            <button id="sidebar-toggle-btn" class="menu-toggle" title="Toggle sidebar" style="display: flex !important; visibility: visible !important; opacity: 1 !important; background: rgba(255,255,255,0.15) !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #fff !important; width: 40px !important; height: 40px !important; border-radius: 8px !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; flex-shrink: 0 !important; margin-right: 16px !important; position: relative !important; z-index: 100 !important;">
+            <!-- Sidebar show button (visible when sidebar is hidden) -->
+            <button id="sidebar-show-btn" class="sidebar-show-btn" onclick="showSidebar()" title="Show sidebar" style="display: none;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                    <path d="M13 18l6-6-6-6M5 18l6-6-6-6"/>
                 </svg>
             </button>
             <div class="chat-title-section">
@@ -758,6 +763,125 @@ function loadUploadedPDFs(chatId) {
         }
     }
 
+    // Sidebar toggle functions
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+
+    function hideSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const showBtn = document.getElementById('sidebar-show-btn');
+        const hideBtn = document.getElementById('sidebar-hide-btn');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        
+        if (!sidebar) return;
+        
+        if (isMobile()) {
+            // Mobile: slide out
+            sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        } else {
+            // Desktop: collapse
+            sidebar.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+        
+        // Show the show button, hide the hide button
+        if (showBtn) showBtn.style.display = 'flex';
+        if (hideBtn) hideBtn.style.display = 'none';
+        
+        // Save state to localStorage
+        localStorage.setItem('sidebar-hidden', 'true');
+    }
+
+    function showSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const showBtn = document.getElementById('sidebar-show-btn');
+        const hideBtn = document.getElementById('sidebar-hide-btn');
+        let backdrop = document.getElementById('sidebar-backdrop');
+        
+        if (!sidebar) return;
+        
+        if (isMobile()) {
+            // Mobile: create backdrop if needed
+            if (!backdrop) {
+                backdrop = document.createElement('div');
+                backdrop.id = 'sidebar-backdrop';
+                backdrop.className = 'sidebar-backdrop';
+                backdrop.onclick = hideSidebar;
+                document.body.appendChild(backdrop);
+            }
+            
+            sidebar.classList.add('open');
+            backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        } else {
+            // Desktop: expand
+            sidebar.classList.remove('collapsed');
+            document.body.classList.remove('sidebar-collapsed');
+        }
+        
+        // Hide the show button, show the hide button
+        if (showBtn) showBtn.style.display = 'none';
+        if (hideBtn) hideBtn.style.display = 'flex';
+        
+        // Save state to localStorage
+        localStorage.setItem('sidebar-hidden', 'false');
+    }
+
+    // Initialize sidebar state on page load
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const showBtn = document.getElementById('sidebar-show-btn');
+        const hideBtn = document.getElementById('sidebar-hide-btn');
+        
+        if (!sidebar) return;
+        
+        if (isMobile()) {
+            // On mobile, sidebar is hidden by default - show the show button
+            if (showBtn) showBtn.style.display = 'flex';
+            if (hideBtn) hideBtn.style.display = 'none'; // Hide button hidden until sidebar opens
+        } else {
+            // Desktop: Check localStorage for saved state
+            const sidebarHidden = localStorage.getItem('sidebar-hidden') === 'true';
+            
+            if (sidebarHidden) {
+                // Desktop: restore collapsed state
+                sidebar.classList.add('collapsed');
+                document.body.classList.add('sidebar-collapsed');
+                if (showBtn) showBtn.style.display = 'flex';
+                if (hideBtn) hideBtn.style.display = 'none';
+            } else {
+                // Default: sidebar visible on desktop
+                if (showBtn) showBtn.style.display = 'none';
+                if (hideBtn) hideBtn.style.display = 'flex';
+            }
+        }
+        
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (isMobile()) {
+                    // On mobile, ensure sidebar is closed by default after resize
+                    if (!sidebar.classList.contains('open')) {
+                        if (showBtn) showBtn.style.display = 'flex';
+                        if (hideBtn) hideBtn.style.display = 'flex';
+                    }
+                }
+            }, 250);
+        });
+    }
+
+    // Initialize on page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebar);
+    } else {
+        initSidebar();
+    }
+
     function logout() {
         const userEmail = '{{ user.email|default:user.username }}';
         showLogoutModal(userEmail, () => {
@@ -916,73 +1040,6 @@ function loadUploadedPDFs(chatId) {
             }
         }
         return cookieValue;
-    }
-
-    // Sidebar toggle logic (mobile + desktop)
-    // Sidebar toggle initialization - ensure it runs after DOM is ready
-    function initSidebarToggle(){
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('sidebar-toggle-btn');
-        if (!sidebar || !toggleBtn) {
-            console.warn('Sidebar or toggle button not found');
-            return;
-        }
-
-        let backdrop = document.getElementById('sidebar-backdrop');
-        if (!backdrop) {
-            backdrop = document.createElement('div');
-            backdrop.className = 'sidebar-backdrop';
-            backdrop.id = 'sidebar-backdrop';
-            document.body.appendChild(backdrop);
-        }
-
-        // Create floating mobile button
-        let floatingBtn = document.getElementById('floating-menu-btn');
-        if (!floatingBtn) {
-            floatingBtn = document.createElement('button');
-            floatingBtn.id = 'floating-menu-btn';
-            floatingBtn.className = 'floating-menu-btn';
-            floatingBtn.innerHTML = `
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>`;
-            document.body.appendChild(floatingBtn);
-        }
-
-        function isMobile(){ return window.innerWidth <= 1024; }
-
-        function openMobile(){
-            sidebar.classList.add('open');
-            backdrop.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeMobile(){
-            sidebar.classList.remove('open');
-            backdrop.classList.remove('show');
-            document.body.style.overflow = '';
-        }
-        function toggle(){
-            if (isMobile()) {
-                if (sidebar.classList.contains('open')) closeMobile(); else openMobile();
-            } else {
-                sidebar.classList.toggle('desktop-collapsed');
-            }
-        }
-
-        toggleBtn.addEventListener('click', toggle);
-        floatingBtn.addEventListener('click', toggle);
-        backdrop.addEventListener('click', closeMobile);
-        window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMobile(); });
-        window.addEventListener('resize', ()=>{ if (!isMobile()) closeMobile(); });
-    }
-    
-    // Initialize on DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSidebarToggle);
-    } else {
-        initSidebarToggle();
     }
 
     function closeAllDropdowns() {
