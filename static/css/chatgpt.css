@@ -43,7 +43,8 @@ body {
 /* Sidebar Styles */
 .sidebar {
     width: var(--sidebar-width);
-    background-color: var(--bg-secondary);
+    /* Apply the same gradient palette used elsewhere */
+    background: linear-gradient(180deg, var(--grad-start), var(--grad-end));
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
