@@ -627,9 +627,8 @@ body.sidebar-collapsed .sidebar-show-btn {
 
 .chat-title-section {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: center;
+    gap: 24px;
     flex: 1;
     margin-left: 350px;
     max-width: calc(100vw - 600px); /* Prevent overflow when zoomed out */
@@ -644,11 +643,11 @@ body.sidebar-collapsed .sidebar-show-btn {
 
 .chat-tagline {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
-    margin-left: 50px;
     font-weight: 400;
-    line-height: 1.4;
+    line-height: 1.5;
+    text-align: center;
 }
 
 .chat-controls {
