@@ -44,9 +44,6 @@
 
   <p class="landing-hint">Log in or sign up to start chatting and upload PDFs. <a href="{% url 'accounts:login' %}" class="btn-login" style="margin-left:8px; padding:6px 10px; font-size:14px;">Log in</a> <a href="{% url 'accounts:register' %}" class="btn-signup" style="margin-left:8px; padding:6px 10px; font-size:14px;">Sign up</a></p>
 </div>
-{% endblock %}
-
-{% block extra_scripts %}
 <script>
   (function(){
     const input = document.querySelector('.landing-input');
