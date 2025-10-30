@@ -1545,7 +1545,12 @@ body:not(.chat-active) .input-container {
     font-weight: 400;
 }
 
+/* Floating, always-centered title wrapper */
 .chat-title-floating {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1554,6 +1559,9 @@ body:not(.chat-active) .input-container {
     margin: 0 auto;
     padding: 4px 12px;
     width: min(1100px, 92vw);
+    text-align: center;
+    pointer-events: none; /* don't block header controls */
+    z-index: 1;
 }
 
 .chat-title-floating h1#chat-title {
