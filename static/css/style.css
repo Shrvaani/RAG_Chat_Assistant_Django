@@ -1,20 +1,5 @@
 /* Custom styles for RAG Chat Assistant */
 
-/* Navbar brand wrapper and tagline */
-.navbar-brand-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.navbar-tagline {
-    font-size: 13px;
-    color: #888;
-    margin: 0;
-    font-weight: 400;
-    line-height: 1.4;
-}
-
 /* Chat container styling */
 .chat-container {
     height: 500px;
