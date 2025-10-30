@@ -14,7 +14,9 @@
   .addon-badges { position: absolute; right: 18px; top: 14px; display:flex; gap:6px; }
   .badge-pill { background:#f0fdf4; color:#0a7f47; border-radius: 12px; padding: 4px 6px; font-size:12px; font-weight:700; }
   .chip-row { display:flex; align-items:center; gap:14px; margin-top: 14px; }
-  .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; }
+  .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; background:#2b2d31; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; cursor:pointer; outline:none; border-image: initial; }
+  .chip:hover { border-color:#565a61; background:#303239; }
+  .chip:active { transform: translateY(1px); }
   .btn-login { background: linear-gradient(90deg, var(--grad-start), var(--grad-end)); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .btn-signup { background: transparent; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .landing-hint { margin-top: 12px; color:#9ba3af; font-size: 14px; }
