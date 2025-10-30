@@ -25,7 +25,13 @@
         {% endif %}
     {% else %}
         <style>
-          body { background: #0f0f10; color: #e5e7eb; }
+          :root { color-scheme: light dark; }
+          @media (prefers-color-scheme: light) {
+            body { background: #f7f7f8; color: #0f172a; }
+          }
+          @media (prefers-color-scheme: dark) {
+            body { background: #0f0f10; color: #e5e7eb; }
+          }
         </style>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
