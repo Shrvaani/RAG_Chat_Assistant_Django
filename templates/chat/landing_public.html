@@ -9,8 +9,14 @@
   .landing-wrap { min-height: 80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 24px; }
   .landing-title { font-size: clamp(28px, 4vw, 56px); font-weight: 700; color: #fff; margin: 0 0 24px 0; text-align:center; }
   .landing-bar { width: min(1100px, 92vw); background: #222326; border: 1px solid #33353a; border-radius: 28px; padding: 18px 18px 16px; box-shadow: 0 12px 34px rgba(0,0,0,0.35); position: relative; }
-  .landing-input-row { display:flex; align-items:center; gap:12px; }
+  .landing-input-row { display:flex; align-items:center; gap:12px; justify-content:space-between; }
   .landing-input { flex: 1; background: transparent; border: none; outline: none; color: #eaeaea; font-size: 18px; }
+  /* RAG toggle */
+  .rag-toggle { display:flex; align-items:center; gap:10px; color:#eaeaea; margin-left:12px; }
+  .rag-switch { position: relative; width: 44px; height: 24px; background:#2b2d31; border:1px solid #3a3b3f; border-radius: 9999px; cursor:pointer; }
+  .rag-switch::after { content:''; position:absolute; top:2px; left:2px; width:20px; height:20px; background:#9ca3af; border-radius:9999px; transition: all .2s ease; }
+  #guest-rag:checked + .rag-switch { background: linear-gradient(90deg, var(--grad-start), var(--grad-end)); border-color: transparent; }
+  #guest-rag:checked + .rag-switch::after { left:22px; background:#fff; }
   /* Remove placeholder badges; enable Grammarly compatibility */
   .chip-row { display:flex; align-items:center; gap:14px; margin-top: 14px; }
   .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; background:#2b2d31; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; cursor:pointer; outline:none; border-image: initial; }
@@ -27,6 +33,13 @@
   <div class="landing-bar">
     <div class="landing-input-row">
       <textarea class="landing-input" placeholder="Ask anything" rows="1" spellcheck="true" data-gramm="true" data-gramm_editor="true" style="resize:none; overflow:hidden;"></textarea>
+      <div class="rag-toggle">
+        <span style="font-size:14px; opacity:.9;">Use RAG</span>
+        <label style="display:flex; align-items:center; cursor:pointer;">
+          <input type="checkbox" id="guest-rag" style="display:none;">
+          <span class="rag-switch"></span>
+        </label>
+      </div>
     </div>
     <div class="chip-row">
       <button type="button" class="chip" id="chip-attach">📎 Attach</button>
@@ -42,14 +55,16 @@
   (function(){
     const input = document.querySelector('.landing-input');
     const fileInput = document.getElementById('guest-file-input');
+    const ragToggle = document.getElementById('guest-rag');
     const filesList = document.getElementById('guest-files-list');
 
     // Attach: open file picker (guest preview only)
-    document.getElementById('chip-attach').onclick = () => fileInput.click();
+    document.getElementById('chip-attach').onclick = () => { ragToggle.checked = true; fileInput.click(); };
     fileInput.onchange = () => {
       if (!fileInput.files || fileInput.files.length === 0) return;
       const names = Array.from(fileInput.files).map(f => f.name).join(', ');
-      filesList.textContent = `Selected: ${names}. Files will upload after you log in.`;
+      if (!names) return;
+      filesList.textContent = `Selected: ${names}. Log in to upload and use RAG.`;
     };
 
     // Search: open Google in new tab using current input
