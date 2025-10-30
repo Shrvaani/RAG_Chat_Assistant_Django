@@ -32,11 +32,18 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
+                        <style>
+                          .pill-btn { display:inline-block; padding:8px 14px; border-radius:20px; font-weight:600; text-decoration:none; margin-left:10px; }
+                          .pill-login { background:#fff; color:#111; }
+                          .pill-login:hover { filter:brightness(0.95); color:#111; }
+                          .pill-signup { background:transparent; color:#e5e7eb; border:1px solid #3a3b3f; }
+                          .pill-signup:hover { background:#27292d; color:#fff; border-color:#4b4f56; }
+                        </style>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:register' %}">Register</a>
+                            <a class="pill-btn pill-login" href="{% url 'accounts:login' %}">Log in</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                            <a class="pill-btn pill-signup" href="{% url 'accounts:register' %}">Sign up</a>
                         </li>
                     </ul>
                 </div>
