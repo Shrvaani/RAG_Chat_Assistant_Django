@@ -25,6 +25,9 @@
   .btn-login { background: linear-gradient(90deg, var(--grad-start), var(--grad-end)); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .btn-signup { background: transparent; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .landing-hint { margin-top: 12px; color:#9ba3af; font-size: 14px; }
+  .guest-messages { width:min(1100px,92vw); margin:16px auto 0; display:flex; flex-direction:column; gap:10px; }
+  .guest-msg { color:#eaeaea; background:#1d1f22; border:1px solid #2e2f33; padding:10px 12px; border-radius:10px; max-width:80%; }
+  .guest-msg.user { align-self:flex-end; background:#2b2d31; }
 </style>
 
 <div class="landing-wrap">
@@ -48,6 +51,7 @@
     <input type="file" id="guest-file-input" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none;" />
     <div id="guest-files-list" class="files-note"></div>
   </div>
+  <div id="guest-messages" class="guest-messages"></div>
 
   
 </div>
@@ -57,6 +61,25 @@
     const fileInput = document.getElementById('guest-file-input');
     const ragToggle = document.getElementById('guest-rag');
     const filesList = document.getElementById('guest-files-list');
+    const messagesEl = document.getElementById('guest-messages');
+
+    async function ensureGuestChatId(){
+      let id = sessionStorage.getItem('guest_chat_id');
+      if (id) return id;
+      const res = await fetch('/api/chat/create/', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title:'Guest Chat'})});
+      const data = await res.json();
+      id = data.id;
+      sessionStorage.setItem('guest_chat_id', id);
+      return id;
+    }
+
+    function appendMessage(role, content){
+      const div = document.createElement('div');
+      div.className = 'guest-msg ' + (role === 'user' ? 'user' : 'assistant');
+      div.textContent = content;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
 
     // Attach: open file picker (guest preview only)
     document.getElementById('chip-attach').onclick = () => { ragToggle.checked = true; fileInput.click(); };
@@ -75,17 +98,20 @@
     };
 
     // Removed Study and Voice interactions per requirement
-    // If user presses Enter, capture prompt and direct to login; after login we prefill chat
+    // On Enter send as guest using session-bound chat
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         const q = (input.value || '').trim();
         if (!q) return;
-        try {
-          sessionStorage.setItem('prefill_prompt', q);
-          sessionStorage.setItem('prefill_use_rag', String(ragToggle.checked));
-        } catch (_) {}
-        window.location.href = "{% url 'accounts:login' %}?next=/chat/";
+        (async () => {
+          const chatId = await ensureGuestChatId();
+          appendMessage('user', q);
+          input.value='';
+          const res = await fetch('/api/chat/send-message/', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chat_id: chatId, message: q, use_rag: ragToggle.checked})});
+          const data = await res.json();
+          if (data && data.response) appendMessage('assistant', data.response); else appendMessage('assistant', data.error || 'Error retrieving response');
+        })();
       }
     });
   })();
