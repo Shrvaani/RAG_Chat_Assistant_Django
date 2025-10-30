@@ -6,9 +6,10 @@
 {% block content %}
 <style>
   body { background: #0f0f10; color: var(--text-primary); }
-  .landing-wrap { min-height: 80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 24px; }
-  .landing-title { font-size: clamp(28px, 4vw, 56px); font-weight: 700; color: #fff; margin: 0 0 24px 0; text-align:center; }
-  .landing-bar { width: min(1100px, 92vw); background: #222326; border: 1px solid #33353a; border-radius: 28px; padding: 18px 18px 16px; box-shadow: 0 12px 34px rgba(0,0,0,0.35); position: relative; }
+  .landing-wrap { min-height: 100vh; padding: 24px 0 120px; display:flex; flex-direction:column; align-items:center; }
+  .landing-title { font-size: clamp(32px, 5vw, 60px); font-weight: 800; color: #fff; margin: 60px 0 24px 0; text-align:center; }
+  .composer { position: fixed; left:50%; transform: translateX(-50%); bottom: 24px; width: min(1100px, 92vw); }
+  .landing-bar { width: 100%; background: #222326; border: 1px solid #33353a; border-radius: 28px; padding: 18px 18px 16px; box-shadow: 0 12px 34px rgba(0,0,0,0.35); position: relative; }
   .landing-input-row { display:flex; align-items:center; gap:12px; justify-content:space-between; }
   .landing-input { flex: 1; background: transparent; border: none; outline: none; color: #eaeaea; font-size: 18px; }
   /* RAG toggle */
@@ -25,14 +26,14 @@
   .btn-login { background: linear-gradient(90deg, var(--grad-start), var(--grad-end)); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .btn-signup { background: transparent; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .landing-hint { margin-top: 12px; color:#9ba3af; font-size: 14px; }
-  .guest-messages { width:min(1100px,92vw); margin:16px auto 0; display:flex; flex-direction:column; gap:10px; }
+  .guest-messages { width:min(1100px,92vw); margin:16px auto 0; display:flex; flex-direction:column; gap:10px; padding-bottom:140px; }
   .guest-msg { color:#eaeaea; background:#1d1f22; border:1px solid #2e2f33; padding:10px 12px; border-radius:10px; max-width:80%; }
   .guest-msg.user { align-self:flex-end; background:#2b2d31; }
 </style>
 
 <div class="landing-wrap">
   <h1 class="landing-title">Ready when you are.</h1>
-
+  <div class="composer">
   <div class="landing-bar">
     <div class="landing-input-row">
       <textarea class="landing-input" placeholder="Ask anything" rows="1" spellcheck="true" data-gramm="true" data-gramm_editor="true" style="resize:none; overflow:hidden;"></textarea>
@@ -47,9 +48,13 @@
     <div class="chip-row">
       <button type="button" class="chip" id="chip-attach">📎 Attach</button>
       <button type="button" class="chip" id="chip-search">🌐 Search</button>
+      <button type="button" class="chip" id="chip-study">📖 Study</button>
+      <button type="button" class="chip" id="chip-voice" style="margin-left:auto;">🎙️ Voice</button>
     </div>
     <input type="file" id="guest-file-input" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none;" />
     <div id="guest-files-list" class="files-note"></div>
+  </div>
+  <div style="text-align:center; margin-top:8px; color:#9ba3af; font-size:12px;">RAG Chat Assistant can make mistakes. Check important info.</div>
   </div>
   <div id="guest-messages" class="guest-messages"></div>
 
@@ -97,7 +102,24 @@
       window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
     };
 
-    // Removed Study and Voice interactions per requirement
+    // Study: open Wikipedia search/new tab
+    document.getElementById('chip-study').onclick = () => {
+      const q = (input.value || '').trim();
+      const url = q ? `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}` : 'https://en.wikipedia.org/';
+      window.open(url, '_blank');
+    };
+
+    // Voice: fill input using Web Speech API
+    document.getElementById('chip-voice').onclick = async () => {
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) { alert('Voice not supported in this browser'); return; }
+        const r = new SpeechRecognition();
+        r.lang = 'en-US';
+        r.onresult = (e) => { const txt = e.results[0][0].transcript; input.value = txt; input.focus(); };
+        r.start();
+      } catch (e) { console.error(e); }
+    };
     // On Enter send as guest using session-bound chat
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
