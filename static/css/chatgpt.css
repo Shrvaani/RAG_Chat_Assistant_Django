@@ -1163,7 +1163,17 @@ body:not(.chat-active) .input-container {
     height: 48px;            /* default compact height (old size) */
     min-height: 48px;        /* base height */
     max-height: 160px;       /* cap auto-expansion to keep compact */
-    overflow-y: auto;        /* scroll when very long */
+    overflow-y: auto;        /* allow scroll for very long input */
+    overflow-x: hidden;      /* no horizontal scrollbar */
+}
+
+/* Hide textarea scrollbar UI while keeping scrolling behavior */
+#message-input {
+    scrollbar-width: none; /* Firefox */
+}
+
+#message-input::-webkit-scrollbar { /* Chrome/Safari */
+    display: none;
 }
 
 #message-input:focus,
