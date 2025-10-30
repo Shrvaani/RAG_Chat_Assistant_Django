@@ -627,11 +627,14 @@ body.sidebar-collapsed .sidebar-show-btn {
 
 .chat-title-section {
     display: flex;
+    flex-direction: column; /* stack title and tagline */
     align-items: center;
-    gap: 24px;
+    justify-content: center;
+    gap: 8px;
     flex: 1;
-    margin-left: 350px;
-    max-width: calc(100vw - 600px); /* Prevent overflow when zoomed out */
+    margin-left: 0; /* remove fixed offset that breaks centering */
+    max-width: 100%; /* allow full width for proper centering */
+    text-align: center;
 }
 
 .chat-title-section h1 {
