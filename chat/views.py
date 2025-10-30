@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Chat, Message
@@ -21,13 +21,36 @@ def ensure_user_profile(user):
     except UserProfile.DoesNotExist:
         return UserProfile.objects.create(user=user, supabase_user_id=str(user.id))
 
-@login_required
+def get_guest_user():
+    """Return a shared guest user account (created on first use)."""
+    from django.contrib.auth.models import User
+    guest, _ = User.objects.get_or_create(username='guest_user', defaults={'password': '!', 'email': 'guest@example.com'})
+    return guest
+
+def get_or_create_guest_chat(request):
+    """Create or fetch the session-bound guest chat."""
+    chat_id = request.session.get('guest_chat_id')
+    if chat_id:
+        try:
+            return Chat.objects.get(supabase_id=chat_id)
+        except Chat.DoesNotExist:
+            pass
+    # create new
+    import uuid
+    chat_id = str(uuid.uuid4())
+    chat = Chat.objects.create(supabase_id=chat_id, user=get_guest_user(), title='Guest Chat')
+    request.session['guest_chat_id'] = chat_id
+    return chat
+
 def dashboard_view(request):
     """Main chat dashboard"""
-    # Ensure user has a profile
-    ensure_user_profile(request.user)
-    
-    chats = Chat.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        ensure_user_profile(request.user)
+        chats = Chat.objects.filter(user=request.user)
+    else:
+        # guest view: expose single guest chat ID
+        chat = get_or_create_guest_chat(request)
+        chats = [chat]
     return render(request, 'chat/dashboard.html', {'chats': chats})
 
 def landing_view(request):
@@ -59,7 +82,7 @@ def get_chats(request):
     } for chat in chats])
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def create_chat(request):
     """Create new chat"""
     print(f"Create chat request from user: {request.user}")
@@ -67,11 +90,13 @@ def create_chat(request):
     print(f"Creating chat with title: {title}")
     
     try:
-        # Ensure user has a profile
-        print("Ensuring user profile...")
-        user_profile = ensure_user_profile(request.user)
-        print(f"User profile: {user_profile}")
-        
+        if request.user.is_authenticated:
+            print("Ensuring user profile...")
+            user_profile = ensure_user_profile(request.user)
+            print(f"User profile: {user_profile}")
+            owner = request.user
+        else:
+            owner = get_guest_user()
         # Create a simple chat ID
         import uuid
         chat_id = str(uuid.uuid4())
@@ -81,7 +106,7 @@ def create_chat(request):
         print("Creating chat in database...")
         chat = Chat.objects.create(
             supabase_id=chat_id,
-            user=request.user,
+            user=owner,
             title=title
         )
         print(f"Chat created successfully: {chat.id}")
@@ -98,7 +123,7 @@ def create_chat(request):
         return Response({'error': str(e)}, status=500)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def send_message(request):
     """Send message and get response"""
     chat_id = request.data.get('chat_id')
@@ -109,7 +134,14 @@ def send_message(request):
         return Response({'error': 'chat_id and message are required'}, status=400)
     
     try:
-        chat = get_object_or_404(Chat, supabase_id=chat_id, user=request.user)
+        if request.user.is_authenticated:
+            chat = get_object_or_404(Chat, supabase_id=chat_id, user=request.user)
+        else:
+            # ensure using session-bound guest chat only
+            guest_chat = get_or_create_guest_chat(request)
+            if guest_chat.supabase_id != chat_id:
+                return Response({'error': 'Invalid chat for guest'}, status=403)
+            chat = guest_chat
         
         # Save user message to database
         Message.objects.create(
@@ -141,11 +173,16 @@ def send_message(request):
         return Response({'error': str(e)}, status=500)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def get_messages(request, chat_id):
     """Get messages for a chat"""
     try:
-        chat = get_object_or_404(Chat, supabase_id=chat_id, user=request.user)
+        if request.user.is_authenticated:
+            chat = get_object_or_404(Chat, supabase_id=chat_id, user=request.user)
+        else:
+            chat = get_or_create_guest_chat(request)
+            if chat.supabase_id != chat_id:
+                return Response({'error': 'Invalid chat for guest'}, status=403)
         messages = Message.objects.filter(chat=chat).order_by('created_at')
         return Response([{
             'role': message.role,
