@@ -213,7 +213,7 @@
             
             <div class="input-container">
                 <div class="input-wrapper">
-                    <input type="text" id="message-input" placeholder="Message RAG Chat Assistant..." disabled>
+                    <textarea id="message-input" placeholder="Message RAG Chat Assistant..." rows="1" disabled></textarea>
                     <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 8l-2.147 2.146a.5.5 0 0 0 .708.708l3-3zM0.5 8.5H15v-1H0.5v1z" fill="currentColor"/>
@@ -592,11 +592,23 @@ function formatMessageContent(content) {
 }
 
 // Enter key handler
-document.getElementById('message-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
+// Keyboard behavior for textarea: Enter sends, Shift+Enter adds newline
+document.getElementById('message-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
         sendMessage();
     }
 });
+
+// Auto-resize message textarea
+function autoResizeMessageInput() {
+    const el = document.getElementById('message-input');
+    if (!el) return;
+    el.style.height = 'auto';
+    const max = 220; // px
+    el.style.height = Math.min(el.scrollHeight, max) + 'px';
+}
+document.getElementById('message-input').addEventListener('input', autoResizeMessageInput);
 
 function uploadPDF() {
     if (!currentChatId) {
