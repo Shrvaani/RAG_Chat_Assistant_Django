@@ -1,15 +1,15 @@
-# 🦉 Chat + Document Q&A (RAG)
+# Chat + Document Q&A (RAG)
 
 A powerful chatbot application that combines conversational AI with document-grounded question answering using Retrieval-Augmented Generation (RAG).
 
 ## Features
 
-- 💬 **Multi-session Chat**: Create and manage multiple chat sessions
-- 📄 **PDF Upload**: Upload PDFs to ground answers in your documents
-- 🔍 **RAG Pipeline**: Uses Pinecone vector database for semantic search
-- 📚 **Source Citations**: Answers include citations to source documents
-- 🎯 **Flexible Mode**: Toggle between RAG mode and free chat
-- ✨ **Modern UI**: Beautiful gradient design with smooth interactions
+- **Multi-session Chat**: Create and manage multiple chat sessions
+- **PDF Upload**: Upload PDFs to ground answers in your documents
+- **RAG Pipeline**: Uses Pinecone vector database for semantic search
+- **Source Citations**: Answers include citations to source documents
+- **Flexible Mode**: Toggle between RAG mode and free chat
+- **Modern UI**: Beautiful gradient design with smooth interactions
 
 ## Tech Stack
 
