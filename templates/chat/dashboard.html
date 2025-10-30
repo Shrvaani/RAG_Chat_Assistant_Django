@@ -414,6 +414,8 @@ function sendMessage() {
     // Add user message to chat
     addMessageToChat('user', message);
     input.value = '';
+    // Reset textarea height back to compact after sending
+    input.style.height = '48px';
     
     // Show loading indicator
     const loadingDiv = document.createElement('div');
