@@ -59,7 +59,4 @@ The retriever is implemented as a service and can be swapped. If you require FAI
 
 This project runs cleanly on Railway or any Django-friendly host (Gunicorn + Postgres). See the included Railway guides for a quick path.
 
-## License
-
-MIT
 
