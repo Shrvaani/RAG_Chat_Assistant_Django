@@ -1682,6 +1682,39 @@ body:not(.chat-active) .input-container {
     .message {
         max-width: 85%;
     }
+
+    /* Dock input at the bottom on mobile to keep it visible */
+    .input-container {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border-color);
+        z-index: 1002;
+    }
+
+    /* Reserve space so messages aren't hidden behind fixed input */
+    .messages-container {
+        padding-bottom: 110px;
+    }
+
+    /* Even in new chat empty state, pin input at bottom */
+    body.new-chat-empty.chat-active .input-container {
+        position: fixed;
+        top: auto;
+        left: 0;
+        transform: none;
+        width: 100%;
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .input-wrapper {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 /* Responsive styles for wide screens and zoomed-out views */
