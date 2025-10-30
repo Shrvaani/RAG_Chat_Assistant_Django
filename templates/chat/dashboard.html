@@ -1751,9 +1751,11 @@ function loadUploadedPDFs(chatId) {
                 if (currentChatId) {
                     pdfsSection.style.display = 'block';
                 }
+                document.body.classList.add('rag-on');
             } else {
                 // RAG disabled - hide PDF upload section
                 pdfsSection.style.display = 'none';
+                document.body.classList.remove('rag-on');
             }
         });
         

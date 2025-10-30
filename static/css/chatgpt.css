@@ -839,6 +839,15 @@ body:not(.chat-active) .chat-header {
     padding: 0 16px;
 }
 
+/* When RAG upload section is visible, keep the title visible in-flow */
+body.rag-on .new-chat-welcome {
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 16px 0;
+}
+
 .new-chat-title {
     font-size: clamp(24px, 3vw, 40px);
     font-weight: 600;
