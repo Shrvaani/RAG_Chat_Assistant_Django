@@ -605,7 +605,7 @@ function autoResizeMessageInput() {
     const el = document.getElementById('message-input');
     if (!el) return;
     el.style.height = 'auto';
-    const max = 220; // px
+    const max = 160; // px, keep compact
     el.style.height = Math.min(el.scrollHeight, max) + 'px';
 }
 document.getElementById('message-input').addEventListener('input', autoResizeMessageInput);

@@ -1158,10 +1158,12 @@ body:not(.chat-active) .input-container {
     outline: none;
     transition: all 0.2s ease;
     line-height: 1.5;
-    resize: none;           /* prevent manual drag resize */
-    min-height: 48px;       /* base height */
-    max-height: 220px;      /* cap auto-expansion */
-    overflow-y: auto;       /* scroll when very long */
+    box-sizing: border-box;
+    resize: none;            /* prevent manual drag resize */
+    height: 48px;            /* default compact height (old size) */
+    min-height: 48px;        /* base height */
+    max-height: 160px;       /* cap auto-expansion to keep compact */
+    overflow-y: auto;        /* scroll when very long */
 }
 
 #message-input:focus,
