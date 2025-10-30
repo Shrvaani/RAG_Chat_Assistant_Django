@@ -11,8 +11,7 @@
   .landing-bar { width: min(1100px, 92vw); background: #222326; border: 1px solid #33353a; border-radius: 28px; padding: 18px 18px 16px; box-shadow: 0 12px 34px rgba(0,0,0,0.35); position: relative; }
   .landing-input-row { display:flex; align-items:center; gap:12px; }
   .landing-input { flex: 1; background: transparent; border: none; outline: none; color: #eaeaea; font-size: 18px; }
-  .addon-badges { position: absolute; right: 18px; top: 14px; display:flex; gap:6px; }
-  .badge-pill { background:#f0fdf4; color:#0a7f47; border-radius: 12px; padding: 4px 6px; font-size:12px; font-weight:700; }
+  /* Remove placeholder badges; enable Grammarly compatibility */
   .chip-row { display:flex; align-items:center; gap:14px; margin-top: 14px; }
   .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; background:#2b2d31; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; cursor:pointer; outline:none; border-image: initial; }
   .chip:hover { border-color:#565a61; background:#303239; }
@@ -26,12 +25,8 @@
   <h1 class="landing-title">Ready when you are.</h1>
 
   <div class="landing-bar">
-    <div class="addon-badges">
-      <div class="badge-pill">G</div>
-      <div class="badge-pill" style="background:#ecfeff;color:#0369a1;">P</div>
-    </div>
     <div class="landing-input-row">
-      <input type="text" class="landing-input" placeholder="Ask anything">
+      <textarea class="landing-input" placeholder="Ask anything" rows="1" spellcheck="true" data-gramm="true" data-gramm_editor="true" style="resize:none; overflow:hidden;"></textarea>
     </div>
     <div class="chip-row">
       <button type="button" class="chip" id="chip-attach">📎 Attach</button>
