@@ -137,11 +137,19 @@ def send_message(request):
         if request.user.is_authenticated:
             chat = get_object_or_404(Chat, supabase_id=chat_id, user=request.user)
         else:
-            # ensure using session-bound guest chat only
+            # Guest: prefer session-bound chat, but if a valid guest chat_id was
+            # created previously (e.g., in another tab) bind the session to it.
             guest_chat = get_or_create_guest_chat(request)
             if guest_chat.supabase_id != chat_id:
-                return Response({'error': 'Invalid chat for guest'}, status=403)
-            chat = guest_chat
+                try:
+                    candidate = Chat.objects.get(supabase_id=chat_id, user=get_guest_user())
+                    # Rebind session to this guest chat
+                    request.session['guest_chat_id'] = candidate.supabase_id
+                    chat = candidate
+                except Chat.DoesNotExist:
+                    return Response({'error': 'Invalid chat for guest'}, status=403)
+            else:
+                chat = guest_chat
         
         # Save user message to database
         Message.objects.create(
@@ -182,7 +190,12 @@ def get_messages(request, chat_id):
         else:
             chat = get_or_create_guest_chat(request)
             if chat.supabase_id != chat_id:
-                return Response({'error': 'Invalid chat for guest'}, status=403)
+                try:
+                    candidate = Chat.objects.get(supabase_id=chat_id, user=get_guest_user())
+                    request.session['guest_chat_id'] = candidate.supabase_id
+                    chat = candidate
+                except Chat.DoesNotExist:
+                    return Response({'error': 'Invalid chat for guest'}, status=403)
         messages = Message.objects.filter(chat=chat).order_by('created_at')
         return Response([{
             'role': message.role,
