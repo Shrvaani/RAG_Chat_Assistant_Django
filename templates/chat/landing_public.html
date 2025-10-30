@@ -75,6 +75,19 @@
     };
 
     // Removed Study and Voice interactions per requirement
+    // If user presses Enter, capture prompt and direct to login; after login we prefill chat
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const q = (input.value || '').trim();
+        if (!q) return;
+        try {
+          sessionStorage.setItem('prefill_prompt', q);
+          sessionStorage.setItem('prefill_use_rag', String(ragToggle.checked));
+        } catch (_) {}
+        window.location.href = "{% url 'accounts:login' %}?next=/chat/";
+      }
+    });
   })();
 </script>
 {% endblock %}

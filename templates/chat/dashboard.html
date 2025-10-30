@@ -1709,6 +1709,21 @@ function loadUploadedPDFs(chatId) {
 
     // Enhanced chat item click handler
     document.addEventListener('DOMContentLoaded', function() {
+        // Prefill prompt/use_rag if coming from landing page
+        try {
+            const prefill = sessionStorage.getItem('prefill_prompt');
+            const preRag = sessionStorage.getItem('prefill_use_rag');
+            if (prefill) {
+                const mi = document.getElementById('message-input');
+                if (mi) { mi.value = prefill; }
+                sessionStorage.removeItem('prefill_prompt');
+            }
+            if (preRag !== null) {
+                const ragCheckbox = document.getElementById('use-rag');
+                if (ragCheckbox) ragCheckbox.checked = (preRag === 'true');
+                sessionStorage.removeItem('prefill_use_rag');
+            }
+        } catch(_) {}
         const chatItems = document.querySelectorAll('.chat-item');
         chatItems.forEach(item => {
             item.addEventListener('click', function(e) {
