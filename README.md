@@ -1,122 +1,63 @@
-# Chat + Document Q&A (RAG)
+# RAG Chat Assistant (Django)
 
-A powerful chatbot application that combines conversational AI with document-grounded question answering using Retrieval-Augmented Generation (RAG).
+A Django-based chat assistant with Retrieval-Augmented Generation (RAG), secure authentication, conversation memory, and a modern UI.
 
-## Features
+## Highlights
 
-- **Multi-session Chat**: Create and manage multiple chat sessions
-- **PDF Upload**: Upload PDFs to ground answers in your documents
-- **RAG Pipeline**: Uses Pinecone vector database for semantic search
-- **Source Citations**: Answers include citations to source documents
-- **Flexible Mode**: Toggle between RAG mode and free chat
-- **Modern UI**: Beautiful gradient design with smooth interactions
+- **Authentication**: Django auth for register/login, CSRF, secure sessions; per‑user chat isolation. A lightweight guest mode lets users try the app before logging in.
+- **Conversation Memory**: Chats and messages are persisted in Django models. The LLM receives recent turns for context in each reply.
+- **RAG**: Upload PDFs per chat and toggle RAG on/off. The backend retrieves relevant chunks and augments the prompt before generation (`chat/services.py` + `services/ai_service.py`). The retriever is service‑based, so swapping to FAISS or Pinecone is straightforward.
+- **Clean UI**: Gradient header, responsive sidebar, sticky composer, and dark/light aware auth pages. Loading state shows a “Thinking…” row during generation.
 
 ## Tech Stack
 
-- **Frontend**: Streamlit
-- **LLM**: Hugging Face Inference API (OpenAI GPT-OSS-20B)
-- **Embeddings**: sentence-transformers/all-mpnet-base-v2
-- **Vector DB**: Pinecone
-- **Storage**: Supabase
-- **PDF Processing**: PyMuPDF, LangChain
+- **Framework**: Django (MVT)
+- **Templates/CSS/JS**: Django templates, custom CSS, vanilla JS
+- **LLM**: Hugging Face Inference API
+- **PDF/RAG**: PyMuPDF or similar parsing (via services), custom retriever (swappable to FAISS/Pinecone)
+- **DB**: SQLite for local dev; Postgres recommended in production
 
-## Setup
+## Getting Started
 
-### 1. Clone the repository
-
+### 1) Clone
 ```bash
 git clone <your-repo-url>
 cd RAG_PDF_Chatbot
 ```
 
-### 2. Install dependencies
-
+### 2) Install
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set up environment variables
-
-Create a `.env` file with:
-
-```env
+### 3) Environment
+Create env vars (via shell/export or your platform’s settings):
+```
 HF_TOKEN=your_huggingface_token
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_INDEX_NAME=rag-chat-index
+# Optional vector store keys if you switch retriever later
+# PINECONE_API_KEY=...
 ```
 
-### 4. Set up Supabase tables
-
-Create the following tables in your Supabase project:
-
-**chats table:**
-```sql
-CREATE TABLE chats (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL,
-  title TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**messages table:**
-```sql
-CREATE TABLE messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  chat_id UUID REFERENCES chats(id) ON DELETE CASCADE,
-  role TEXT NOT NULL,
-  content TEXT NOT NULL,
-  sources TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**pdfs table:**
-```sql
-CREATE TABLE pdfs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  chat_id UUID REFERENCES chats(id) ON DELETE CASCADE,
-  filename TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-### 5. Run locally
-
+### 4) Migrate & run
 ```bash
-streamlit run bot.py
-```
-
-## Deployment to Streamlit Cloud
-
-1. Push your code to GitHub
-2. Go to [share.streamlit.io](https://share.streamlit.io)
-3. Click "New app"
-4. Select your repository and `bot.py`
-5. Add your secrets in the Streamlit Cloud dashboard (Settings → Secrets)
-6. Deploy!
-
-## Environment Variables for Streamlit Cloud
-
-In Streamlit Cloud, add these secrets:
-
-```toml
-HF_TOKEN = "your_huggingface_token"
-SUPABASE_URL = "your_supabase_url"
-SUPABASE_KEY = "your_supabase_key"
-PINECONE_API_KEY = "your_pinecone_api_key"
-PINECONE_INDEX_NAME = "rag-chat-index"
+python manage.py migrate
+python manage.py runserver
 ```
 
 ## Usage
 
-1. **Create a Chat**: Click "New Chat" in the sidebar
-2. **Upload PDFs** (optional): Upload documents to ground your answers
-3. **Ask Questions**: Type your questions in the chat input
-4. **View Sources**: Expand source citations to see where answers came from
-5. **Manage Sessions**: Rename or delete chats as needed
+1. Log in (or try guest mode on the landing page).  
+2. Create a chat and start messaging.  
+3. Toggle “Use RAG” and upload PDFs to ground answers.  
+4. Your conversations are saved and can be revisited from the sidebar.
+
+## RAG Notes
+
+The retriever is implemented as a service and can be swapped. If you require FAISS/Pinecone, add the client and wire it in `ConversationService` without changing views/templates.
+
+## Deployment
+
+This project runs cleanly on Railway or any Django-friendly host (Gunicorn + Postgres). See the included Railway guides for a quick path.
 
 ## License
 
