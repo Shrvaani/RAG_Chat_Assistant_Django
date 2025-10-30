@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -29,6 +29,12 @@ def dashboard_view(request):
     
     chats = Chat.objects.filter(user=request.user)
     return render(request, 'chat/dashboard.html', {'chats': chats})
+
+def landing_view(request):
+    """Public landing page. Redirect authenticated users to dashboard."""
+    if request.user.is_authenticated:
+        return redirect('chat:dashboard')
+    return render(request, 'chat/landing_public.html')
 
 @login_required
 def chat_detail_view(request, chat_id):
