@@ -14,8 +14,9 @@
   .addon-badges { position: absolute; right: 18px; top: 14px; display:flex; gap:6px; }
   .badge-pill { background:#f0fdf4; color:#0a7f47; border-radius: 12px; padding: 4px 6px; font-size:12px; font-weight:700; }
   .chip-row { display:flex; align-items:center; gap:14px; margin-top: 14px; }
-  .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; }
-  .chip-voice { margin-left:auto; display:flex; align-items:center; gap:10px; color:#eaeaea; background:#2b2d31; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; }
+  .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; cursor:pointer; user-select:none; }
+  .chip-voice { margin-left:auto; display:flex; align-items:center; gap:10px; color:#eaeaea; background:#2b2d31; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; cursor:pointer; user-select:none; }
+  .files-note { margin-top: 10px; color:#9ba3af; font-size: 13px; }
   .btn-login { background: linear-gradient(90deg, var(--grad-start), var(--grad-end)); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .btn-signup { background: transparent; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .landing-hint { margin-top: 12px; color:#9ba3af; font-size: 14px; }
@@ -33,15 +34,57 @@
       <input type="text" class="landing-input" placeholder="Ask anything">
     </div>
     <div class="chip-row">
-      <a class="chip" href="{% url 'accounts:login' %}?next=/chat/" title="Log in to attach files">📎 Attach</a>
-      <a class="chip" href="{% url 'accounts:login' %}?next=/chat/" title="Log in to search">🌐 Search</a>
-      <a class="chip" href="{% url 'accounts:login' %}?next=/chat/" title="Log in to study with PDFs">📖 Study</a>
-      <a class="chip-voice" href="{% url 'accounts:login' %}?next=/chat/" title="Log in to use voice">🎙️ Voice</a>
+      <div class="chip" id="chip-attach">📎 Attach</div>
+      <div class="chip" id="chip-search">🌐 Search</div>
+      <div class="chip" id="chip-study">📖 Study</div>
+      <div class="chip-voice" id="chip-voice">🎙️ Voice</div>
     </div>
+    <input type="file" id="guest-file-input" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none;" />
+    <div id="guest-files-list" class="files-note"></div>
   </div>
 
   <p class="landing-hint">Log in or sign up to start chatting and upload PDFs. <a href="{% url 'accounts:login' %}" class="btn-login" style="margin-left:8px; padding:6px 10px; font-size:14px;">Log in</a> <a href="{% url 'accounts:register' %}" class="btn-signup" style="margin-left:8px; padding:6px 10px; font-size:14px;">Sign up</a></p>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function(){
+    const input = document.querySelector('.landing-input');
+    const fileInput = document.getElementById('guest-file-input');
+    const filesList = document.getElementById('guest-files-list');
+
+    document.getElementById('chip-attach').onclick = () => fileInput.click();
+    fileInput.onchange = () => {
+      if (!fileInput.files || fileInput.files.length === 0) return;
+      const names = Array.from(fileInput.files).map(f => f.name).join(', ');
+      filesList.textContent = `Selected: ${names}. Files will upload after you log in.`;
+    };
+
+    document.getElementById('chip-search').onclick = () => {
+      const q = (input.value || '').trim();
+      if (!q) { input.focus(); return; }
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
+    };
+
+    document.getElementById('chip-study').onclick = () => {
+      const q = (input.value || '').trim();
+      const url = q ? `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}` : 'https://en.wikipedia.org/';
+      window.open(url, '_blank');
+    };
+
+    document.getElementById('chip-voice').onclick = async () => {
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) { alert('Voice not supported in this browser'); return; }
+        const r = new SpeechRecognition();
+        r.lang = 'en-US';
+        r.onresult = (e) => { const txt = e.results[0][0].transcript; input.value = txt; };
+        r.start();
+      } catch (e) { console.error(e); }
+    };
+  })();
+</script>
 {% endblock %}
 
 
