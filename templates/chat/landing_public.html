@@ -15,7 +15,6 @@
   .badge-pill { background:#f0fdf4; color:#0a7f47; border-radius: 12px; padding: 4px 6px; font-size:12px; font-weight:700; }
   .chip-row { display:flex; align-items:center; gap:14px; margin-top: 14px; }
   .chip { display:flex; align-items:center; gap:10px; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; }
-  .chip-voice { margin-left:auto; display:flex; align-items:center; gap:10px; color:#eaeaea; background:#2b2d31; border:1px solid #3a3b3f; padding:10px 16px; border-radius: 20px; font-weight:600; font-size:14px; }
   .btn-login { background: linear-gradient(90deg, var(--grad-start), var(--grad-end)); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .btn-signup { background: transparent; color:#eaeaea; border:1px solid #3a3b3f; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; }
   .landing-hint { margin-top: 12px; color:#9ba3af; font-size: 14px; }
@@ -35,8 +34,6 @@
     <div class="chip-row">
       <button type="button" class="chip" id="chip-attach">📎 Attach</button>
       <button type="button" class="chip" id="chip-search">🌐 Search</button>
-      <button type="button" class="chip" id="chip-study">📖 Study</button>
-      <button type="button" class="chip-voice" id="chip-voice">🎙️ Voice</button>
     </div>
     <input type="file" id="guest-file-input" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none;" />
     <div id="guest-files-list" class="files-note"></div>
@@ -65,24 +62,7 @@
       window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
     };
 
-    // Study: open Wikipedia search/new tab
-    document.getElementById('chip-study').onclick = () => {
-      const q = (input.value || '').trim();
-      const url = q ? `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}` : 'https://en.wikipedia.org/';
-      window.open(url, '_blank');
-    };
-
-    // Voice: fill input using Web Speech API
-    document.getElementById('chip-voice').onclick = async () => {
-      try {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) { alert('Voice not supported in this browser'); return; }
-        const r = new SpeechRecognition();
-        r.lang = 'en-US';
-        r.onresult = (e) => { const txt = e.results[0][0].transcript; input.value = txt; };
-        r.start();
-      } catch (e) { console.error(e); }
-    };
+    // Removed Study and Voice interactions per requirement
   })();
 </script>
 {% endblock %}
