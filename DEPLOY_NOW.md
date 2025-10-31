@@ -45,8 +45,6 @@ SECRET_KEY=change-this-to-a-random-secret-key-min-50-characters
 DEBUG=False
 ALLOWED_HOSTS=*.railway.app
 
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-supabase-anon-key
 PINECONE_API_KEY=your-pinecone-api-key
 PINECONE_INDEX_NAME=rag-chat-index
 HF_TOKEN=your-huggingface-token
@@ -87,7 +85,6 @@ After adding variables, Railway will auto-redeploy. Wait for:
 ---
 
 ## 📝 What You Need:
-- Your Supabase URL and Key
 - Your Pinecone API Key  
 - Your Hugging Face Token
 - A random SECRET_KEY (generate at: https://djecrety.ir/ or use: `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`)

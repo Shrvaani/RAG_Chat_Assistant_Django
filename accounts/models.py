@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 class UserProfile(models.Model):
-    """Extended user profile with Supabase integration"""
+    """Extended user profile"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     supabase_user_id = models.CharField(max_length=36, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

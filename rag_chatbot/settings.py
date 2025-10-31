@@ -94,47 +94,40 @@ if os.getenv('DATABASE_URL'):
         'default': dj_database_url.config(default=os.getenv('DATABASE_URL'), conn_max_age=600)
     }
 elif os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('RAILWAY'):
-    # Railway environment but no DATABASE_URL - check if we should use Supabase
-    # Only use Supabase if we're NOT on Railway with PostgreSQL connected
-    print("DEBUG: Railway environment detected but no DATABASE_URL")
+    # Railway environment but no DATABASE_URL - use SQLite as fallback
+    print("DEBUG: Railway environment detected but no DATABASE_URL, using SQLite")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif os.getenv('VERCEL'):
+    # Vercel production - check for PostgreSQL environment variables
     if all([
-        os.getenv('SUPABASE_DB_NAME'),
-        os.getenv('SUPABASE_DB_USER'),
-        os.getenv('SUPABASE_DB_PASSWORD'),
-        os.getenv('SUPABASE_DB_HOST')
+        os.getenv('DB_NAME'),
+        os.getenv('DB_USER'),
+        os.getenv('DB_PASSWORD'),
+        os.getenv('DB_HOST')
     ]):
-        print("DEBUG: Falling back to Supabase database")
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('SUPABASE_DB_NAME'),
-                'USER': os.getenv('SUPABASE_DB_USER'),
-                'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD'),
-                'HOST': os.getenv('SUPABASE_DB_HOST'),
-                'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
+                'NAME': os.getenv('DB_NAME'),
+                'USER': os.getenv('DB_USER'),
+                'PASSWORD': os.getenv('DB_PASSWORD'),
+                'HOST': os.getenv('DB_HOST'),
+                'PORT': os.getenv('DB_PORT', '5432'),
             }
         }
     else:
-        # No database configured - use SQLite as last resort
-        print("DEBUG: No database configured, using SQLite")
+        # Fallback to SQLite if no database config
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': BASE_DIR / 'db.sqlite3',
             }
         }
-elif os.getenv('VERCEL'):
-    # Vercel production database (Supabase PostgreSQL)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('SUPABASE_DB_NAME'),
-            'USER': os.getenv('SUPABASE_DB_USER'),
-            'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD'),
-            'HOST': os.getenv('SUPABASE_DB_HOST'),
-            'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
-        }
-    }
 else:
     # Local development database
     DATABASES = {
@@ -184,8 +177,6 @@ LOGIN_REDIRECT_URL = '/chat/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # External Services Configuration
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME', 'rag-chat-index')
 HF_TOKEN = os.getenv('HF_TOKEN')

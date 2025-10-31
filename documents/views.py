@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Document, DocumentChunk
 from chat.models import Chat
-from services.supabase_service import SupabaseService
 from services.pinecone_service import PineconeService
 from services.ai_service import AIService
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader

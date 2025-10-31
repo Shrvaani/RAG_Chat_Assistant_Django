@@ -9,8 +9,6 @@ gunicorn>=21.2.0
 psycopg2-binary>=2.9.0
 
 # External Services
-supabase==2.3.0
-realtime==1.0.6
 pinecone>=5.0.0
 huggingface-hub>=0.20.0
 langchain-community>=0.0.20

@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import Chat, Message
 from .services import ConversationService
-from services.supabase_service import SupabaseService
 from accounts.models import UserProfile
 from documents.models import Document, DocumentChunk
 import json
@@ -19,7 +18,7 @@ def ensure_user_profile(user):
     try:
         return user.userprofile
     except UserProfile.DoesNotExist:
-        return UserProfile.objects.create(user=user, supabase_user_id=str(user.id))
+        return UserProfile.objects.create(user=user)
 
 def get_guest_user():
     """Return a shared guest user account (created on first use)."""
@@ -102,7 +101,7 @@ def create_chat(request):
         chat_id = str(uuid.uuid4())
         print(f"Generated chat ID: {chat_id}")
         
-        # Create in Django (skip Supabase for now)
+        # Create in Django
         print("Creating chat in database...")
         chat = Chat.objects.create(
             supabase_id=chat_id,

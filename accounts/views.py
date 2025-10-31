@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from .forms import UserRegistrationForm
 from .models import UserProfile
-from services.supabase_service import SupabaseService
 
 def register_view(request):
     """User registration view"""
@@ -13,31 +12,6 @@ def register_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Create user in Supabase (optional)
-            try:
-                supabase_service = SupabaseService()
-                if supabase_service.enabled:
-                    supabase_user = supabase_service.create_user(
-                        user_id=str(user.id),
-                        username=user.username,
-                        email=user.email
-                    )
-                    # Link Django user to Supabase user only if Supabase user was created successfully
-                    if supabase_user and 'id' in supabase_user:
-                        profile = UserProfile.objects.get(user=user)
-                        profile.supabase_user_id = supabase_user['id']
-                        profile.save()
-                        print(f"Successfully linked Django user {user.id} to Supabase user {supabase_user['id']}")
-                    else:
-                        print("Supabase user creation failed, but Django user was created successfully")
-                        messages.warning(request, 'User created but Supabase sync failed: Unable to create user in Supabase')
-                else:
-                    print("Supabase is not enabled, skipping user sync")
-            except Exception as e:
-                # If Supabase fails, still create the user
-                print(f"Supabase sync error: {e}")
-                messages.warning(request, f'User created but Supabase sync failed: {str(e)}')
-            
             login(request, user)
             messages.success(request, 'Account created successfully!')
             return redirect('chat:dashboard')
