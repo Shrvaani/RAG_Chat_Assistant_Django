@@ -20,15 +20,12 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy project files
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput || true
+# Collect static files (skip if fails - will be handled at runtime if needed)
+RUN python manage.py collectstatic --noinput || echo "Collectstatic skipped"
 
-# Expose port
-EXPOSE $PORT
+# Expose port (Railway will override this)
+EXPOSE 8000
 
-# Create startup script with error handling
-RUN echo '#!/bin/bash\necho "Running migrations..."\npython manage.py migrate --noinput || echo "Migration failed, continuing..."\necho "Starting Gunicorn..."\nexec gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -' > /app/start.sh && chmod +x /app/start.sh
-
-# Run migrations and start server
-CMD ["/app/start.sh"]
+# Start command - Railway will use Procfile if available, otherwise this CMD
+CMD sh -c "python manage.py migrate --noinput || true && gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:\${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -"
 

@@ -13,6 +13,7 @@ urlpatterns = [
     path('chat/', include('chat.urls')),
     path('documents/', include('documents.urls')),
     path('api/', include('chat.api_urls')),
+    path('healthz/', chat_views.health_view),
     # Public landing page for unauthenticated users
     path('', chat_views.landing_view, name='landing'),
 ]

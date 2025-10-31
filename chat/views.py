@@ -12,6 +12,7 @@ from .services import ConversationService
 from accounts.models import UserProfile
 from documents.models import Document, DocumentChunk
 import json
+from django.http import JsonResponse
 
 def ensure_user_profile(user):
     """Ensure user has a UserProfile, create if not exists"""
@@ -57,6 +58,10 @@ def landing_view(request):
     if request.user.is_authenticated:
         return redirect('chat:dashboard')
     return render(request, 'chat/landing_public.html')
+
+def health_view(request):
+    """Lightweight health endpoint for platform health checks."""
+    return JsonResponse({"ok": True})
 
 @login_required
 def chat_detail_view(request, chat_id):
