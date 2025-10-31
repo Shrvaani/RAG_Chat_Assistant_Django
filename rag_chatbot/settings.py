@@ -211,9 +211,10 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
-# Secure cookies in production
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# Secure cookies in production (only when not in DEBUG mode)
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Caching (use in-memory cache for serverless)
