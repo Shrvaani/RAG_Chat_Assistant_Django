@@ -695,6 +695,43 @@ function uploadPDF() {
     input.click();
 }
 
+// Reusable uploader used by drag & drop and file input
+function uploadFileToChat(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a PDF file');
+        return;
+    }
+
+    // Ensure there is an active chat; if not, create then retry
+    const ensureChat = currentChatId ? Promise.resolve(currentChatId) : createNewChat().then(d => d.id);
+
+    ensureChat.then(() => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+        return fetch(`/documents/upload/${currentChatId}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('pdf-upload-success').style.display = 'flex';
+                setTimeout(() => { document.getElementById('pdf-upload-success').style.display = 'none'; }, 2500);
+                loadUploadedPDFs(currentChatId);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Upload error:', error);
+            alert('Upload failed: ' + error.message);
+        });
+    });
+}
+
 function loadUploadedPDFs(chatId) {
     if (!chatId) return;
     
@@ -1744,6 +1781,39 @@ function loadUploadedPDFs(chatId) {
         const pdfsSection = document.getElementById('uploaded-pdfs');
         
         pdfsSection.style.display = 'none';
+
+        // Hook up file input and drag & drop for PDF uploads
+        const fileInput = document.getElementById('pdf-upload-input');
+        const dropArea = document.getElementById('drag-drop-area');
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                files.forEach(f => uploadFileToChat(f));
+                // reset input so selecting the same file again re-triggers change
+                e.target.value = '';
+            });
+        }
+        if (dropArea) {
+            ;['dragenter','dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropArea.classList.add('drag-over');
+                });
+            });
+            ;['dragleave','drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropArea.classList.remove('drag-over');
+                });
+            });
+            dropArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = Array.from((dt && dt.files) ? dt.files : []);
+                files.forEach(f => uploadFileToChat(f));
+            });
+        }
         
         ragCheckbox.addEventListener('change', function() {
             if (this.checked) {
