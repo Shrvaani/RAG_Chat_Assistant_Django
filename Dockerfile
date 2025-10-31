@@ -27,5 +27,5 @@ RUN python manage.py collectstatic --noinput || echo "Collectstatic skipped"
 EXPOSE 8000
 
 # Start command - Railway will use Procfile if available, otherwise this CMD
-CMD sh -c "python manage.py migrate --noinput || true && gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:\${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -"
+CMD sh -c "gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:\${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -"
 
