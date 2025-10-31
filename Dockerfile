@@ -27,7 +27,7 @@ RUN python manage.py collectstatic --noinput || true
 EXPOSE $PORT
 
 # Create startup script with error handling
-RUN echo '#!/bin/bash\nset -e\necho "Running migrations..."\npython manage.py migrate --noinput || echo "Migration failed, continuing..."\necho "Starting Gunicorn..."\nexec gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -' > /app/start.sh && chmod +x /app/start.sh
+RUN echo '#!/bin/bash\necho "Running migrations..."\npython manage.py migrate --noinput || echo "Migration failed, continuing..."\necho "Starting Gunicorn..."\nexec gunicorn rag_chatbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 2 --access-logfile - --error-logfile -' > /app/start.sh && chmod +x /app/start.sh
 
 # Run migrations and start server
 CMD ["/app/start.sh"]
